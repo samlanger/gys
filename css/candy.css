@@ -1,0 +1,16 @@
+@charset "UTF-8";
+/* CSS Document */
+
+/* * * * * * * * * * */
+/*     FAQs          */
+/* * * * * * * * * * */
+
+.question {
+    cursor:pointer;
+}
+
+.answer {
+    margin-left:1em;
+    display:none;
+}
+
