@@ -1,0 +1,15 @@
+[
+  {
+    "file": "../library/ventura-county-general-plan-agriculture.pdf",
+    "title": "Ventura County 2040 General Plan — Agriculture Element",
+    "category": "plans_law",
+    "docType": "plan",
+    "geography": ["Ventura County"],
+    "topics": ["agriculture", "agritourism"],
+    "publishedDate": "2020-09-15",
+    "owner": "County of Ventura (public)",
+    "lastVerified": "2026-10-25",
+    "sourceUrl": "https://example.org/replace-with-the-official-link",
+    "copyrighted": false
+  }
+]

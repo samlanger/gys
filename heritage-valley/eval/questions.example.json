@@ -1,0 +1,13 @@
+[
+  {
+    "id": "q01-overnight-stays",
+    "question": "What did the last county tourism study say about overnight stays?",
+    "expectedSources": [{ "documentTitle": "REPLACE with the exact library title", "pages": [12, 13] }],
+    "mustInclude": ["REPLACE with the key figure or phrase from that page"]
+  },
+  {
+    "id": "q20-not-in-library",
+    "question": "How many visitors came to Piru for the 1923 citrus festival?",
+    "expectNotFound": true
+  }
+]

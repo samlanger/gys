@@ -1,0 +1,47 @@
+{
+  "_note": "Seed list from SPEC.md. Tags are working hypotheses for research, not findings: no case is shown as evidence until it has at least one library document attached (a library document whose geography includes the town). Add cautionary cases the same way.",
+  "cases": [
+    {
+      "id": "paso-robles",
+      "town": "Paso Robles",
+      "region": "San Luis Obispo County, CA",
+      "moveTypes": ["agritourism", "wine region", "events"],
+      "researchFocus": "How a farming region built a visitor economy around wineries and tasting rooms, and how county rules on tasting rooms, events, and lodging on agricultural land evolved alongside it."
+    },
+    {
+      "id": "solvang",
+      "town": "Solvang",
+      "region": "Santa Barbara County, CA",
+      "moveTypes": ["heritage theming", "downtown"],
+      "researchFocus": "How a town turned a cultural heritage identity into a walkable visitor downtown, and what design rules and business mix kept it distinct over time."
+    },
+    {
+      "id": "healdsburg",
+      "town": "Healdsburg",
+      "region": "Sonoma County, CA",
+      "moveTypes": ["culinary", "lodging", "downtown"],
+      "researchFocus": "How a small farm town around a plaza drew food and wine visitors and overnight stays, and how it handled the effects on housing costs and local character."
+    },
+    {
+      "id": "ojai",
+      "town": "Ojai",
+      "region": "Ventura County, CA",
+      "moveTypes": ["arts and wellness", "small-town character", "agriculture"],
+      "researchFocus": "A Ventura County neighbor: how it has grown visitor demand while keeping strict limits on growth, chain businesses, and short-term rentals, and how it treats its citrus heritage."
+    },
+    {
+      "id": "marfa",
+      "town": "Marfa",
+      "region": "Presidio County, TX",
+      "moveTypes": ["arts anchor", "remote destination"],
+      "researchFocus": "How a single cultural anchor drew visitors to a remote small town, and what that did to lodging supply, rents, and the existing community."
+    },
+    {
+      "id": "fillmore-piru-santa-paula",
+      "town": "Heritage Valley (baseline)",
+      "region": "Ventura County, CA",
+      "moveTypes": ["baseline"],
+      "researchFocus": "The valley's own past efforts — rail, citrus, filming, and events — and what the record shows about what worked and what stalled."
+    }
+  ]
+}

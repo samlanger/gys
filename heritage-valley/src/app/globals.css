@@ -1,0 +1,31 @@
+@import "tailwindcss";
+
+@theme {
+  --color-valley-50: #f3f7f2;
+  --color-valley-100: #e1ebdf;
+  --color-valley-600: #3f6b45;
+  --color-valley-700: #2f5435;
+  --color-valley-900: #1b2f1f;
+  --color-citrus-100: #fdecd3;
+  --color-citrus-500: #e08a1e;
+  --color-citrus-700: #9a5a0c;
+  --font-sans: ui-sans-serif, system-ui, -apple-system, "Segoe UI", Roboto, sans-serif;
+  --font-serif: ui-serif, Georgia, Cambria, "Times New Roman", serif;
+}
+
+body {
+  @apply bg-stone-50 text-stone-900 antialiased;
+}
+
+@media print {
+  .no-print {
+    display: none !important;
+  }
+  body {
+    background: white;
+  }
+  @page {
+    size: letter;
+    margin: 0.6in;
+  }
+}
