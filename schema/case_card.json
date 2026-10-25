@@ -1,0 +1,730 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://place-transformation-atlas/schema/case_card.json",
+  "title": "Place Transformation Atlas — Case Card",
+  "description": "One place, one transformation story. Design rules: (1) every factual value is a `fact` that carries source ids or is marked unverified; (2) every judgment is an `assessment` that carries a confidence and rationale; facts and assessments never share a field; (3) sources are registered once in `sources[]` and referenced by id; (4) actors, interventions and geo units have ids so other sections can point at them instead of repeating prose.",
+  "type": "object",
+  "additionalProperties": false,
+  "required": [
+    "meta", "place", "starting_conditions", "trigger", "actors", "interventions",
+    "timeline", "metrics", "value_capture", "identity", "second_order_effects",
+    "niche_vs_hub_assessment", "outcome", "lessons", "open_questions", "sources", "confidence"
+  ],
+  "properties": {
+
+    "meta": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["schema_version", "case_id", "title", "status", "clusters", "era", "last_updated"],
+      "properties": {
+        "schema_version": { "type": "string", "const": "0.1.0" },
+        "case_id": { "$ref": "#/$defs/slug", "description": "Matches the file name: /cases/<case_id>.json" },
+        "title": { "type": "string", "description": "Short human title, e.g. 'Bilbao and the Guggenheim effect'." },
+        "status": { "enum": ["seed", "stub", "pilot_draft", "researched", "reviewed", "needs_revision"] },
+        "clusters": {
+          "type": "array", "minItems": 1, "uniqueItems": true,
+          "items": { "enum": ["ip_anchor", "industry_identity", "cultural_niche", "urban_transformation", "cautionary_overtourism", "policy_model", "rural_reinvention", "rural_failed_attempt", "other"] },
+          "description": "Seed-list clusters (Phase 2). A case may sit in several."
+        },
+        "era": {
+          "type": "object", "additionalProperties": false, "required": ["start_year"],
+          "properties": {
+            "start_year": { "type": "integer", "minimum": 1800, "maximum": 2100, "description": "Year the transformation story begins (usually the trigger)." },
+            "end_year": { "type": ["integer", "null"], "description": "Null if ongoing." }
+          }
+        },
+        "related_cases": {
+          "type": "array",
+          "items": {
+            "type": "object", "additionalProperties": false, "required": ["case_id", "relation"],
+            "properties": {
+              "case_id": { "$ref": "#/$defs/slug" },
+              "relation": { "enum": ["same_place_other_story", "same_anchor_other_place", "copied_from", "copied_by", "competitor", "comparison", "parent_region", "sub_place"] },
+              "note": { "type": "string" }
+            }
+          },
+          "description": "e.g. Disneyland Paris -> same_anchor_other_place -> Tokyo Disneyland."
+        },
+        "researchers": { "type": "array", "items": { "type": "string" } },
+        "last_updated": { "type": "string", "format": "date" },
+        "review_log": {
+          "type": "array",
+          "items": {
+            "type": "object", "additionalProperties": false, "required": ["date", "reviewer", "note"],
+            "properties": { "date": { "type": "string", "format": "date" }, "reviewer": { "type": "string" }, "note": { "type": "string" } }
+          }
+        }
+      }
+    },
+
+    "place": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["name", "country", "admin_level", "coordinates", "population", "geo_units"],
+      "properties": {
+        "name": { "type": "string" },
+        "alt_names": { "type": "array", "items": { "type": "string" } },
+        "country": { "type": "string", "pattern": "^[A-Z]{2}$", "description": "ISO 3166-1 alpha-2." },
+        "admin_level": { "enum": ["site", "neighborhood", "town", "city", "county", "metro", "island", "region", "country"] },
+        "parent_admin": { "type": "array", "items": { "type": "string" }, "description": "Enclosing units, smallest first, e.g. ['Presidio County', 'Texas']." },
+        "coordinates": {
+          "type": "object", "additionalProperties": false, "required": ["lat", "lon"],
+          "properties": {
+            "lat": { "type": "number", "minimum": -90, "maximum": 90 },
+            "lon": { "type": "number", "minimum": -180, "maximum": 180 }
+          }
+        },
+        "area_km2": { "$ref": "#/$defs/fact" },
+        "population": {
+          "type": "array",
+          "items": { "$ref": "#/$defs/observation" },
+          "description": "Population over time for the place itself. Each point names its geo_unit because towns, counties and metros are often mixed in sources."
+        },
+        "geo_units": {
+          "type": "array", "minItems": 1,
+          "items": { "$ref": "#/$defs/geo_unit" },
+          "description": "Every statistical geography any number in this card refers to, and how it relates to the place. Prevents silently mixing town and county data."
+        }
+      }
+    },
+
+    "starting_conditions": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["as_of_year", "economy", "decline_drivers", "geography", "assets", "access"],
+      "description": "The place just before the trigger. Structured codes feed the analog finder (Phase 8); facts carry the evidence.",
+      "properties": {
+        "as_of_year": { "type": "integer" },
+        "economy": {
+          "type": "object", "additionalProperties": false, "required": ["primary_sectors", "summary"],
+          "properties": {
+            "primary_sectors": {
+              "type": "array", "minItems": 1, "uniqueItems": true,
+              "items": { "enum": ["agriculture", "ranching", "fishing", "forestry", "mining_extraction", "manufacturing", "port_logistics", "military", "government", "education", "health", "tourism", "retail_services", "finance", "tech", "creative_media", "religious", "retirement_amenity", "informal_subsistence", "other"] }
+            },
+            "trajectory": { "$ref": "#/$defs/assessment", "description": "Growing / stable / declining / collapsing, with rationale." },
+            "summary": { "$ref": "#/$defs/fact" },
+            "indicators": { "type": "array", "items": { "$ref": "#/$defs/observation" }, "description": "Baseline numbers (income, unemployment, poverty, vacancy)." }
+          }
+        },
+        "decline_drivers": {
+          "type": "array", "uniqueItems": true,
+          "items": {
+            "type": "object", "additionalProperties": false, "required": ["driver", "evidence"],
+            "properties": {
+              "driver": { "enum": ["deindustrialization", "agricultural_consolidation", "resource_depletion", "commodity_price_shock", "military_base_closure", "transport_bypass", "out_migration_aging", "natural_disaster", "conflict_or_unrest", "disinvestment_redlining", "crime_or_reputation", "political_isolation", "none_not_in_decline", "other"] },
+              "evidence": { "$ref": "#/$defs/fact" }
+            }
+          }
+        },
+        "geography": {
+          "type": "object", "additionalProperties": false, "required": ["settings", "summary"],
+          "properties": {
+            "settings": {
+              "type": "array", "minItems": 1, "uniqueItems": true,
+              "items": { "enum": ["coastal", "island", "mountain", "desert", "river", "lake", "plains", "forest", "tropical", "arctic_subarctic", "wine_country", "urban_core", "inner_suburb", "exurban", "rural_remote"] }
+            },
+            "climate": { "type": "string", "description": "Köppen code where known, e.g. 'BWk'." },
+            "summary": { "$ref": "#/$defs/fact" }
+          }
+        },
+        "assets": {
+          "type": "object", "additionalProperties": false, "required": ["natural", "cultural", "historical", "human"],
+          "description": "What the place had to work with. `distinctiveness` is a judgment: could this asset be found in many other places?",
+          "properties": {
+            "natural": { "type": "array", "items": { "$ref": "#/$defs/asset" } },
+            "cultural": { "type": "array", "items": { "$ref": "#/$defs/asset" } },
+            "historical": { "type": "array", "items": { "$ref": "#/$defs/asset" } },
+            "human": { "type": "array", "items": { "$ref": "#/$defs/asset" }, "description": "Skills, institutions, diaspora, individual founders, craft traditions." },
+            "built": { "type": "array", "items": { "$ref": "#/$defs/asset" }, "description": "Cheap or vacant building stock, industrial structures, rail lines." }
+          }
+        },
+        "access": {
+          "type": "object", "additionalProperties": false, "required": ["summary"],
+          "properties": {
+            "nearest_major_metro": { "type": "string" },
+            "travel_time_to_metro_hours": { "$ref": "#/$defs/fact" },
+            "nearest_commercial_airport": { "type": "string" },
+            "airport_distance_km": { "$ref": "#/$defs/fact" },
+            "rail": { "enum": ["none", "freight_only", "passenger_regional", "passenger_intercity", "high_speed", "unknown"] },
+            "summary": { "$ref": "#/$defs/fact" }
+          }
+        },
+        "constraints": {
+          "type": "array",
+          "items": {
+            "type": "object", "additionalProperties": false, "required": ["kind", "evidence"],
+            "properties": {
+              "kind": { "enum": ["land_scarcity", "water", "zoning_or_heritage_rules", "protected_land", "political_fragmentation", "fiscal_weakness", "seasonality", "climate_hazard", "labor_shortage", "housing_shortage", "legal_status", "other"] },
+              "evidence": { "$ref": "#/$defs/fact" }
+            }
+          }
+        }
+      }
+    },
+
+    "trigger": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["types", "description", "date", "planned"],
+      "description": "What started the change. Often there is more than one; list the dominant one first.",
+      "properties": {
+        "types": {
+          "type": "array", "minItems": 1, "uniqueItems": true,
+          "items": { "enum": ["founder", "institution", "policy", "disaster", "media_ip", "infrastructure", "accident", "market_shift", "designation", "crisis_response", "diaspora_or_migration", "other"] }
+        },
+        "description": { "$ref": "#/$defs/fact" },
+        "date": { "$ref": "#/$defs/date" },
+        "actor_ids": { "type": "array", "items": { "$ref": "#/$defs/id" } },
+        "intervention_ids": { "type": "array", "items": { "$ref": "#/$defs/id" } },
+        "planned": { "$ref": "#/$defs/assessment", "description": "Was the trigger a deliberate strategy, an opportunistic response, or an accident?" }
+      }
+    },
+
+    "actors": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": ["id", "name", "kind", "locality", "role", "sources"],
+        "properties": {
+          "id": { "$ref": "#/$defs/id" },
+          "name": { "type": "string" },
+          "kind": { "enum": ["public", "private", "civic_nonprofit", "artist_creative", "philanthropic", "academic", "community_residents", "indigenous_or_customary", "religious", "media_ip_owner", "multilateral", "public_private_partnership"] },
+          "locality": {
+            "enum": ["local_born", "in_migrant_resident", "returning_diaspora", "regional", "national", "international", "mixed"],
+            "description": "`in_migrant_resident` = an outsider who moved in and stayed (e.g. an artist who relocated). Kept distinct from `local_born` and from absentee outside actors because the niche-vs-hub question turns on it."
+          },
+          "role": { "type": "string" },
+          "active_period": { "type": "string" },
+          "sources": { "$ref": "#/$defs/source_ids" }
+        }
+      }
+    },
+
+    "interventions": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": ["id", "name", "type", "start", "lead_actor_ids", "description", "status", "outcome"],
+        "properties": {
+          "id": { "$ref": "#/$defs/id" },
+          "name": { "type": "string" },
+          "type": { "$ref": "#/$defs/intervention_type" },
+          "secondary_types": { "type": "array", "uniqueItems": true, "items": { "$ref": "#/$defs/intervention_type" } },
+          "start": { "$ref": "#/$defs/date" },
+          "end": { "$ref": "#/$defs/date" },
+          "lead_actor_ids": { "type": "array", "minItems": 1, "items": { "$ref": "#/$defs/id" } },
+          "partner_actor_ids": { "type": "array", "items": { "$ref": "#/$defs/id" } },
+          "scale": { "enum": ["site", "district", "town", "county_region", "national"] },
+          "stated_goal": { "$ref": "#/$defs/fact", "description": "What its backers said it was for, in their words, at the time." },
+          "description": { "$ref": "#/$defs/fact" },
+          "investment": {
+            "type": "object", "additionalProperties": false,
+            "properties": {
+              "amount": { "$ref": "#/$defs/fact", "description": "Nominal amount; put currency and year in unit/as_of." },
+              "public_share": { "$ref": "#/$defs/fact", "description": "0–1 share from public funds, incl. tax expenditures." },
+              "funding_sources": { "$ref": "#/$defs/fact" }
+            }
+          },
+          "status": { "enum": ["proposed", "active", "completed", "ended", "abandoned", "failed_to_launch"] },
+          "outcome": {
+            "$ref": "#/$defs/assessment",
+            "description": "Did it achieve its stated goal? Judgment field: worked / partially / failed / backfired / unclear / too_early in `judgment`."
+          },
+          "sources": { "$ref": "#/$defs/source_ids" }
+        }
+      }
+    },
+
+    "timeline": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": ["date", "event", "category", "sources"],
+        "properties": {
+          "date": { "$ref": "#/$defs/date" },
+          "event": { "type": "string" },
+          "category": { "enum": ["founding", "arrival", "policy", "investment", "opening", "closure", "sale_or_acquisition", "media", "designation", "disaster", "election_or_governance", "protest_or_conflict", "milestone_metric", "other"] },
+          "actor_ids": { "type": "array", "items": { "$ref": "#/$defs/id" } },
+          "intervention_ids": { "type": "array", "items": { "$ref": "#/$defs/id" } },
+          "verification": { "$ref": "#/$defs/verification" },
+          "sources": { "$ref": "#/$defs/source_ids" }
+        }
+      }
+    },
+
+    "metrics": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["series", "before_after", "gaps"],
+      "description": "Headline numbers live here; full time series live in /data/timeseries/ (Phase 4) and are referenced via `timeseries_file`. Population is in place.population.",
+      "properties": {
+        "series": {
+          "type": "array",
+          "items": {
+            "type": "object",
+            "additionalProperties": false,
+            "required": ["metric", "geo_unit_id", "unit", "observations"],
+            "properties": {
+              "metric": { "$ref": "#/$defs/metric_code" },
+              "label": { "type": "string", "description": "Required in practice when metric is 'other'." },
+              "geo_unit_id": { "$ref": "#/$defs/id" },
+              "unit": { "type": "string", "description": "e.g. 'persons', 'USD nominal', 'USD 2020', 'index 2000=100', 'listings'." },
+              "role": { "enum": ["treatment", "comparison", "context"], "default": "treatment" },
+              "observations": { "type": "array", "items": { "$ref": "#/$defs/observation" } },
+              "timeseries_file": { "type": "string", "description": "Path under /data/timeseries/ once Phase 4 joins it." },
+              "notes": { "type": "string" }
+            }
+          }
+        },
+        "before_after": {
+          "type": "array",
+          "description": "Simple pre/post contrasts. Descriptive only: `attribution` states what, if anything, licenses a causal reading.",
+          "items": {
+            "type": "object",
+            "additionalProperties": false,
+            "required": ["metric", "geo_unit_id", "before", "after", "attribution"],
+            "properties": {
+              "metric": { "$ref": "#/$defs/metric_code" },
+              "label": { "type": "string" },
+              "geo_unit_id": { "$ref": "#/$defs/id" },
+              "before": { "$ref": "#/$defs/observation" },
+              "after": { "$ref": "#/$defs/observation" },
+              "comparison_trend": { "$ref": "#/$defs/fact", "description": "Same metric for a comparison place/state/nation over the same window, if available." },
+              "attribution": { "$ref": "#/$defs/causal_claim" }
+            }
+          }
+        },
+        "gaps": { "type": "array", "items": { "type": "string" }, "description": "Data we looked for and could not find. Honest gaps are a deliverable." }
+      }
+    },
+
+    "value_capture": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["local_ownership", "revenue_leakage", "local_spinoffs", "tax_structure", "assessment"],
+      "properties": {
+        "local_ownership": { "$ref": "#/$defs/fact", "description": "Share of key attractions, lodging, land owned by local actors. Often only qualitatively known — say so." },
+        "land_ownership_change": { "$ref": "#/$defs/fact" },
+        "revenue_leakage": { "$ref": "#/$defs/fact", "description": "Estimates of spending that exits the local economy (outside owners, imported goods, remote booking platforms)." },
+        "employment_quality": { "$ref": "#/$defs/fact", "description": "Wage levels, seasonality, local vs. imported labor." },
+        "local_spinoffs": {
+          "type": "array",
+          "items": {
+            "type": "object", "additionalProperties": false, "required": ["name", "kind", "founder_locality", "sources"],
+            "properties": {
+              "name": { "type": "string" },
+              "kind": { "enum": ["business", "nonprofit", "institution", "festival", "brand_or_product", "talent_pipeline", "industry_cluster"] },
+              "founded": { "$ref": "#/$defs/date" },
+              "founder_locality": { "enum": ["local_born", "in_migrant_resident", "returning_diaspora", "regional", "national", "international", "mixed", "unknown"] },
+              "still_operating": { "type": ["boolean", "null"] },
+              "sources": { "$ref": "#/$defs/source_ids" }
+            }
+          }
+        },
+        "tax_structure": {
+          "type": "object", "additionalProperties": false,
+          "properties": {
+            "visitor_taxes": { "$ref": "#/$defs/fact", "description": "Lodging, entry, cruise, or tourist taxes; who levies and who receives." },
+            "special_districts_or_abatements": { "$ref": "#/$defs/fact", "description": "e.g. Reedy Creek Improvement District, TIFs, enterprise zones." },
+            "where_revenue_goes": { "$ref": "#/$defs/fact" }
+          }
+        },
+        "assessment": { "$ref": "#/$defs/assessment", "description": "Overall: how much of the value created stays with residents?" }
+      }
+    },
+
+    "identity": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["before", "after", "authors", "assessment"],
+      "properties": {
+        "before": { "$ref": "#/$defs/fact", "description": "How the place was described before (by itself and outsiders)." },
+        "after": { "$ref": "#/$defs/fact" },
+        "slogans_and_brands": {
+          "type": "array",
+          "items": {
+            "type": "object", "additionalProperties": false, "required": ["text", "date", "author_actor_ids", "sources"],
+            "properties": {
+              "text": { "type": "string" },
+              "date": { "$ref": "#/$defs/date" },
+              "author_actor_ids": { "type": "array", "items": { "$ref": "#/$defs/id" } },
+              "sources": { "$ref": "#/$defs/source_ids" }
+            }
+          }
+        },
+        "authors": {
+          "type": "array", "minItems": 1,
+          "items": {
+            "type": "object", "additionalProperties": false, "required": ["actor_id", "authorship_role"],
+            "properties": {
+              "actor_id": { "$ref": "#/$defs/id" },
+              "authorship_role": { "enum": ["originated_story", "amplified", "commercialized", "contested", "official_marketing", "media_portrayal"] }
+            }
+          },
+          "description": "Who wrote the story. Separating who originated it from who commercialized it is central to the niche-vs-hub module."
+        },
+        "contested": { "$ref": "#/$defs/fact", "description": "Resident pushback, competing narratives, cultural appropriation claims." },
+        "assessment": { "$ref": "#/$defs/assessment" }
+      }
+    },
+
+    "second_order_effects": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": ["id", "domain", "valence", "description", "lag_years", "affected_groups", "evidence", "confidence"],
+        "properties": {
+          "id": { "$ref": "#/$defs/id" },
+          "domain": { "enum": ["housing_cost", "displacement", "short_term_rentals", "overtourism_crowding", "labor_market", "wages_inequality", "business_mix", "cultural_loss_or_commodification", "cultural_revival", "environment", "infrastructure_strain", "fiscal", "dependency_concentration", "demographics", "social_cohesion", "public_health_safety", "political_governance", "spillover_to_region", "other"] },
+          "valence": { "enum": ["positive", "negative", "mixed", "contested"] },
+          "description": { "$ref": "#/$defs/fact" },
+          "lag_years": {
+            "type": "object", "additionalProperties": false, "required": ["min", "max"],
+            "properties": {
+              "min": { "type": ["number", "null"] },
+              "max": { "type": ["number", "null"] },
+              "note": { "type": "string" }
+            },
+            "description": "Years from the linked intervention/trigger to first visible appearance. Null = unknown."
+          },
+          "linked_intervention_ids": { "type": "array", "items": { "$ref": "#/$defs/id" } },
+          "affected_groups": { "type": "array", "items": { "type": "string" } },
+          "magnitude": { "$ref": "#/$defs/fact" },
+          "evidence": { "$ref": "#/$defs/causal_claim" },
+          "mitigations_tried": {
+            "type": "array",
+            "items": {
+              "type": "object", "additionalProperties": false, "required": ["description", "result"],
+              "properties": {
+                "description": { "$ref": "#/$defs/fact" },
+                "intervention_id": { "$ref": "#/$defs/id" },
+                "result": { "$ref": "#/$defs/assessment" }
+              }
+            }
+          },
+          "confidence": { "$ref": "#/$defs/confidence" }
+        }
+      }
+    },
+
+    "niche_vs_hub_assessment": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["rubric_version", "dimensions", "archetype_history", "current_archetype", "transitions"],
+      "description": "Draft structure; the scoring rubric is finalized in Phase 6 (/analysis/niche_vs_hub.md). Scores run 0–4 where 4 is always the more 'originator / locally-owned / resilient' end, so dimensions are comparable. Null score = insufficient evidence.",
+      "properties": {
+        "rubric_version": { "type": "string" },
+        "dimensions": {
+          "type": "object",
+          "additionalProperties": false,
+          "required": ["origin", "authorship", "value_capture", "compounding", "dependency", "identity_durability"],
+          "properties": {
+            "origin": { "$ref": "#/$defs/dimension_score", "description": "0 = attraction wholly imported; 4 = born locally from local assets." },
+            "authorship": { "$ref": "#/$defs/dimension_score", "description": "0 = story/IP/brand owned elsewhere; 4 = owned and told by locals." },
+            "value_capture": { "$ref": "#/$defs/dimension_score", "description": "0 = most revenue/jobs/ownership leave; 4 = most stays." },
+            "compounding": { "$ref": "#/$defs/dimension_score", "description": "0 = single attraction, no spinoffs; 4 = spawned new local firms, talent, industries." },
+            "dependency": { "$ref": "#/$defs/dimension_score", "description": "INVERTED for comparability: 0 = fully exposed to one anchor/company/IP; 4 = diversified." },
+            "identity_durability": { "$ref": "#/$defs/dimension_score", "description": "0 = indistinct without the anchor; 4 = distinctive regardless." }
+          }
+        },
+        "archetype_history": {
+          "type": "array", "minItems": 1,
+          "items": {
+            "type": "object", "additionalProperties": false, "required": ["archetype", "period", "assessment"],
+            "properties": {
+              "archetype": { "$ref": "#/$defs/archetype" },
+              "period": { "type": "string", "description": "e.g. '1955–1990'." },
+              "assessment": { "$ref": "#/$defs/assessment" }
+            }
+          }
+        },
+        "current_archetype": {
+          "type": "object", "additionalProperties": false, "required": ["archetype", "assessment"],
+          "properties": {
+            "archetype": { "$ref": "#/$defs/archetype" },
+            "assessment": { "$ref": "#/$defs/assessment" }
+          }
+        },
+        "transitions": {
+          "type": "array",
+          "items": {
+            "type": "object", "additionalProperties": false, "required": ["from", "to", "period", "preceding_conditions", "decisive_decisions", "confidence"],
+            "properties": {
+              "from": { "$ref": "#/$defs/archetype" },
+              "to": { "$ref": "#/$defs/archetype" },
+              "period": { "type": "string" },
+              "preceding_conditions": { "type": "array", "items": { "type": "string" } },
+              "decisive_decisions": { "type": "array", "items": { "type": "string" } },
+              "sources": { "$ref": "#/$defs/source_ids" },
+              "confidence": { "$ref": "#/$defs/confidence" }
+            }
+          }
+        }
+      }
+    },
+
+    "outcome": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["classification", "horizon_years_observed", "who_benefited", "who_lost"],
+      "description": "Used to keep the library at ~1 failure/cautionary case per 2 successes and to stop analog results from being all winners.",
+      "properties": {
+        "classification": {
+          "type": "object", "additionalProperties": false, "required": ["label", "assessment"],
+          "properties": {
+            "label": { "enum": ["success", "mixed", "cautionary", "failure", "too_early"] },
+            "success_by_whose_measure": { "type": "string", "description": "Success for visitors, investors, long-time residents, or the city budget can diverge; say which." },
+            "assessment": { "$ref": "#/$defs/assessment" }
+          }
+        },
+        "horizon_years_observed": { "type": "integer", "minimum": 0, "description": "Years between trigger and latest evidence. Under ~10 should usually be 'too_early'." },
+        "who_benefited": { "$ref": "#/$defs/assessment" },
+        "who_lost": { "$ref": "#/$defs/assessment" },
+        "long_run": { "$ref": "#/$defs/assessment", "description": "What things look like 10–30 years on." }
+      }
+    },
+
+    "lessons": {
+      "type": "array",
+      "items": {
+        "type": "object", "additionalProperties": false, "required": ["lesson", "applies_when", "confidence"],
+        "properties": {
+          "lesson": { "type": "string" },
+          "applies_when": { "type": "string", "description": "Conditions under which this lesson transfers; forces lessons to be conditional, not universal." },
+          "does_not_apply_when": { "type": "string" },
+          "pattern_ids": { "type": "array", "items": { "type": "string" }, "description": "Links to /patterns/ entries (Phase 7)." },
+          "supporting_sources": { "$ref": "#/$defs/source_ids" },
+          "confidence": { "$ref": "#/$defs/confidence" }
+        }
+      }
+    },
+
+    "open_questions": { "type": "array", "items": { "type": "string" } },
+
+    "comparison_candidates": {
+      "type": "array",
+      "description": "Places similar at baseline that did NOT transform — seeds for Phase 5 synthetic control / DiD.",
+      "items": {
+        "type": "object", "additionalProperties": false, "required": ["place", "why_comparable"],
+        "properties": {
+          "place": { "type": "string" },
+          "geo_code": { "type": "string" },
+          "why_comparable": { "type": "string" },
+          "known_differences": { "type": "string" }
+        }
+      }
+    },
+
+    "sources": {
+      "type": "array", "minItems": 1,
+      "items": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": ["id", "title", "type", "tier", "accessed"],
+        "properties": {
+          "id": { "type": "string", "pattern": "^S[0-9]+$" },
+          "title": { "type": "string" },
+          "author": { "type": "string" },
+          "publisher": { "type": "string" },
+          "year": { "type": ["integer", "null"] },
+          "url": { "type": "string" },
+          "archive_url": { "type": "string", "description": "Wayback/perma link. Strongly preferred for tourism-board and news pages." },
+          "accessed": { "type": "string", "format": "date" },
+          "type": { "enum": ["official_statistics", "government_document", "planning_document", "legal_text", "academic_peer_reviewed", "academic_grey_literature", "book", "historical_newspaper", "news_journalism", "industry_report", "company_document", "tourism_board_marketing", "advocacy_or_ngo", "interview", "dataset", "archival", "web_other"] },
+          "tier": {
+            "enum": ["A", "B", "C", "D", "E"],
+            "description": "A = primary/official data or legal text; B = peer-reviewed or rigorous grey literature; C = reputable journalism, books, archives; D = interested party (tourism board, developer, company, advocacy) — usable for what they claimed, weak for outcomes; E = unknown/user-generated."
+          },
+          "perspective": { "enum": ["neutral", "promoter", "critic", "resident", "operator", "unknown"], "default": "unknown" },
+          "notes": { "type": "string" }
+        }
+      }
+    },
+
+    "confidence": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["overall", "data_completeness", "notes"],
+      "properties": {
+        "overall": { "$ref": "#/$defs/confidence" },
+        "data_completeness": { "$ref": "#/$defs/confidence" },
+        "weakest_sections": { "type": "array", "items": { "type": "string" } },
+        "notes": { "type": "string" }
+      }
+    }
+  },
+
+  "$defs": {
+    "id": { "type": "string", "pattern": "^[a-z][a-z0-9_]*$", "description": "Local id within the card, e.g. 'act_judd', 'int_guggenheim', 'geo_county'." },
+    "slug": { "type": "string", "pattern": "^[a-z0-9]+(-[a-z0-9]+)*$" },
+    "confidence": { "enum": ["high", "medium", "low"] },
+    "verification": {
+      "enum": ["verified", "unverified", "disputed", "derived"],
+      "description": "verified = supported by cited source(s); unverified = no source found yet; disputed = sources disagree (see `disputes`); derived = computed by us from cited data."
+    },
+    "source_ids": { "type": "array", "items": { "type": "string", "pattern": "^S[0-9]+$" }, "uniqueItems": true },
+    "date": {
+      "type": "string",
+      "pattern": "^(c\\.)?[0-9]{4}(s|-[0-9]{2}(-[0-9]{2})?)?$",
+      "description": "'1955-07-17', '1955-07', '1955', 'c.1955' (approximate), '1950s' (decade)."
+    },
+    "fact": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["value", "sources", "verification"],
+      "description": "A claim about the world. No judgment words. If sources is empty, verification must be 'unverified'.",
+      "properties": {
+        "value": { "description": "String, number, or boolean." , "type": ["string", "number", "boolean", "null"] },
+        "unit": { "type": "string" },
+        "as_of": { "$ref": "#/$defs/date" },
+        "sources": { "$ref": "#/$defs/source_ids" },
+        "verification": { "$ref": "#/$defs/verification" },
+        "disputes": { "type": "array", "items": { "$ref": "#/$defs/dissent" } },
+        "note": { "type": "string" }
+      },
+      "allOf": [
+        { "if": { "properties": { "sources": { "maxItems": 0 } } }, "then": { "properties": { "verification": { "const": "unverified" } } } },
+        { "if": { "properties": { "verification": { "const": "disputed" } } }, "then": { "required": ["disputes"] } }
+      ]
+    },
+    "assessment": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["judgment", "confidence", "rationale"],
+      "description": "Our interpretation. Must state confidence and reasoning, and should point at the evidence it rests on.",
+      "properties": {
+        "judgment": { "type": "string" },
+        "confidence": { "$ref": "#/$defs/confidence" },
+        "rationale": { "type": "string" },
+        "evidence_sources": { "$ref": "#/$defs/source_ids" },
+        "dissent": { "type": "array", "items": { "$ref": "#/$defs/dissent" }, "description": "Credible alternative interpretations." }
+      }
+    },
+    "dissent": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["account", "sources"],
+      "properties": {
+        "account": { "type": "string" },
+        "sources": { "$ref": "#/$defs/source_ids" }
+      }
+    },
+    "causal_claim": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["evidence_type", "statement", "confidence"],
+      "description": "Encodes how strong a link between an intervention and an outcome actually is. Only 'causal_estimate' or 'quasi_experimental' may be summarized with words like 'caused'.",
+      "properties": {
+        "evidence_type": { "enum": ["causal_estimate", "quasi_experimental", "correlational", "descriptive_trend", "qualitative", "anecdotal", "none"] },
+        "statement": { "type": "string" },
+        "method": { "type": "string", "description": "e.g. 'synthetic control, 1997–2010, donor pool of 15 Spanish cities'." },
+        "effect_size": { "type": "string", "description": "With uncertainty interval where available." },
+        "confounders": { "type": "array", "items": { "type": "string" } },
+        "sources": { "$ref": "#/$defs/source_ids" },
+        "confidence": { "$ref": "#/$defs/confidence" }
+      }
+    },
+    "observation": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["period", "value", "geo_unit_id", "sources", "verification"],
+      "properties": {
+        "period": { "type": "string", "description": "'2010', '2010-Q3', '2010-07', '2006–2010' (ACS 5-yr)." },
+        "value": { "type": ["number", "null"] },
+        "unit": { "type": "string" },
+        "geo_unit_id": { "$ref": "#/$defs/id" },
+        "sources": { "$ref": "#/$defs/source_ids" },
+        "verification": { "$ref": "#/$defs/verification" },
+        "note": { "type": "string" }
+      }
+    },
+    "geo_unit": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["id", "name", "level", "relation_to_place"],
+      "properties": {
+        "id": { "$ref": "#/$defs/id" },
+        "name": { "type": "string" },
+        "level": { "type": "string", "description": "e.g. 'US census place', 'US county', 'NUTS3', 'NZ territorial authority', 'municipio'." },
+        "code": { "type": "string", "description": "Official code (FIPS, NUTS, INE, etc.)." },
+        "relation_to_place": { "enum": ["equals", "contains_place", "within_place", "overlaps", "proxy"] },
+        "note": { "type": "string", "description": "e.g. 'Place is ~20% of county population.'" }
+      }
+    },
+    "asset": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["name", "description"],
+      "properties": {
+        "name": { "type": "string" },
+        "description": { "$ref": "#/$defs/fact" },
+        "distinctiveness": { "$ref": "#/$defs/assessment", "description": "Rare/unique vs. generic. Feeds the niche finder." },
+        "activated_by_intervention_ids": { "type": "array", "items": { "$ref": "#/$defs/id" } }
+      }
+    },
+    "dimension_score": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["score", "rationale", "confidence"],
+      "properties": {
+        "score": { "type": ["integer", "null"], "minimum": 0, "maximum": 4 },
+        "rationale": { "type": "string" },
+        "confidence": { "$ref": "#/$defs/confidence" },
+        "evidence_sources": { "$ref": "#/$defs/source_ids" }
+      }
+    },
+    "archetype": {
+      "enum": ["originator", "originator_turned_hub", "host", "host_turned_originator", "hollowed_hub", "deliberate_steward", "unclassified"]
+    },
+    "metric_code": {
+      "enum": [
+        "employment_total", "employment_leisure_hospitality", "employment_arts_entertainment", "unemployment_rate",
+        "wage_average", "wage_median", "household_income_median", "poverty_rate",
+        "establishments_total", "establishments_accommodation_food", "establishments_arts",
+        "gdp_total", "gdp_per_capita",
+        "home_price_median", "home_price_index", "rent_median", "housing_units", "vacancy_rate", "second_home_share",
+        "str_listings", "str_share_of_housing",
+        "visitors_annual", "overnight_stays", "hotel_rooms", "cruise_passengers", "visitor_spending", "lodging_tax_revenue",
+        "median_age", "foreign_born_share", "educational_attainment_ba_plus",
+        "nightlights_radiance", "other"
+      ]
+    },
+    "intervention_type": {
+      "description": "Codes defined in /schema/taxonomy.md. Keep in sync (checked by /schema/validate.py).",
+      "enum": [
+        "anchor_institution",
+        "branded_ip_theme_park",
+        "immersive_art_experience",
+        "film_tv_location",
+        "festival_to_identity",
+        "artist_colonization",
+        "heritage_rebrand",
+        "food_wine_agritourism",
+        "nature_adventure_eco",
+        "wellness_retreat",
+        "sports_mega_event",
+        "infrastructure_access",
+        "special_district_tax_regime",
+        "visitor_caps_high_value",
+        "industrial_cluster_innovation_district",
+        "diaspora_pilgrimage",
+        "dark_tourism",
+        "digital_virality",
+        "designation_listing",
+        "place_branding_campaign",
+        "waterfront_brownfield_regeneration",
+        "gaming_casino",
+        "amenity_migration_remote_work",
+        "housing_str_regulation",
+        "community_ownership_model",
+        "indigenous_led_tourism",
+        "cruise_port"
+      ]
+    }
+  }
+}

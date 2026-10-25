@@ -1,0 +1,226 @@
+{
+  "meta": {
+    "schema_version": "0.1.0",
+    "case_id": "example-fictional-town",
+    "title": "FICTIONAL EXAMPLE — Ashford Falls and the Kiln Festival",
+    "status": "pilot_draft",
+    "clusters": ["rural_reinvention"],
+    "era": { "start_year": 1994, "end_year": null },
+    "related_cases": [],
+    "researchers": ["schema-example"],
+    "last_updated": "2026-10-25",
+    "review_log": [{ "date": "2026-10-25", "reviewer": "schema-example", "note": "Entirely fictional; exists only to demonstrate the schema." }]
+  },
+  "place": {
+    "name": "Ashford Falls",
+    "country": "ZZ",
+    "admin_level": "town",
+    "parent_admin": ["Ridge County"],
+    "coordinates": { "lat": 0.0, "lon": 0.0 },
+    "area_km2": { "value": 12.4, "unit": "km2", "sources": ["S1"], "verification": "verified" },
+    "population": [
+      { "period": "1990", "value": 4100, "geo_unit_id": "geo_town", "sources": ["S1"], "verification": "verified" },
+      { "period": "2020", "value": 5300, "geo_unit_id": "geo_town", "sources": ["S1"], "verification": "verified" }
+    ],
+    "geo_units": [
+      { "id": "geo_town", "name": "Ashford Falls (census place)", "level": "census place", "relation_to_place": "equals" },
+      { "id": "geo_county", "name": "Ridge County", "level": "county", "relation_to_place": "contains_place", "note": "Town is ~30% of county population; county figures are a proxy only." }
+    ]
+  },
+  "starting_conditions": {
+    "as_of_year": 1993,
+    "economy": {
+      "primary_sectors": ["manufacturing", "agriculture"],
+      "trajectory": { "judgment": "declining", "confidence": "medium", "rationale": "Pottery works closure removed the largest employer; county employment fell over the decade.", "evidence_sources": ["S1", "S2"] },
+      "summary": { "value": "Economy centered on one ceramics factory and dairy farms.", "sources": ["S2"], "verification": "verified" },
+      "indicators": [
+        { "period": "1990", "value": 11.2, "unit": "percent", "geo_unit_id": "geo_county", "sources": ["S1"], "verification": "verified", "note": "unemployment rate" }
+      ]
+    },
+    "decline_drivers": [
+      { "driver": "deindustrialization", "evidence": { "value": "Ridge Pottery Works closed in 1992 (420 jobs).", "sources": ["S2"], "verification": "verified" } }
+    ],
+    "geography": {
+      "settings": ["river", "forest"],
+      "climate": "Dfb",
+      "summary": { "value": "River valley town with a waterfall in the center.", "sources": ["S1"], "verification": "verified" }
+    },
+    "assets": {
+      "natural": [{ "name": "Ashford waterfall", "description": { "value": "A 30 m waterfall within walking distance of the main street.", "sources": ["S1"], "verification": "verified" } }],
+      "cultural": [],
+      "historical": [],
+      "human": [{
+        "name": "Laid-off ceramicists",
+        "description": { "value": "Several hundred workers with kiln and glazing skills.", "sources": ["S2"], "verification": "verified" },
+        "distinctiveness": { "judgment": "high", "confidence": "medium", "rationale": "Industrial ceramics skills are rare in the region.", "evidence_sources": ["S2"] },
+        "activated_by_intervention_ids": ["int_festival"]
+      }],
+      "built": [{ "name": "Pottery works buildings", "description": { "value": "Vacant factory complex with intact kilns.", "sources": [], "verification": "unverified" } }]
+    },
+    "access": {
+      "nearest_major_metro": "Capital City",
+      "travel_time_to_metro_hours": { "value": 2.5, "unit": "hours by car", "sources": [], "verification": "unverified" },
+      "rail": "none",
+      "summary": { "value": "Two-lane highway only.", "sources": ["S1"], "verification": "verified" }
+    },
+    "constraints": [{ "kind": "seasonality", "evidence": { "value": "Snow closes the pass road several weeks a year.", "sources": [], "verification": "unverified" } }]
+  },
+  "trigger": {
+    "types": ["founder"],
+    "description": { "value": "Former factory glazer organized a weekend kiln-opening event in the closed works.", "sources": ["S2"], "verification": "verified" },
+    "date": "1994-09",
+    "actor_ids": ["act_founder"],
+    "intervention_ids": ["int_festival"],
+    "planned": { "judgment": "opportunistic", "confidence": "medium", "rationale": "Founder described it as a one-off wake for the factory, not a strategy.", "evidence_sources": ["S2"] }
+  },
+  "actors": [
+    { "id": "act_founder", "name": "M. Okafor (fictional)", "kind": "artist_creative", "locality": "local_born", "role": "Festival founder", "active_period": "1994–2015", "sources": ["S2"] },
+    { "id": "act_county", "name": "Ridge County Council", "kind": "public", "locality": "local_born", "role": "Lodging tax, festival grants", "sources": ["S3"] },
+    { "id": "act_promoter", "name": "Global Events Co. (fictional)", "kind": "private", "locality": "international", "role": "Acquired festival in 2015", "sources": ["S3"] }
+  ],
+  "interventions": [
+    {
+      "id": "int_festival",
+      "name": "Kiln Festival",
+      "type": "festival_to_identity",
+      "secondary_types": ["heritage_rebrand"],
+      "start": "1994-09",
+      "lead_actor_ids": ["act_founder"],
+      "partner_actor_ids": ["act_county"],
+      "scale": "town",
+      "stated_goal": { "value": "Keep the town's ceramics skills alive.", "sources": ["S2"], "verification": "verified" },
+      "description": { "value": "Annual three-day open-kiln festival in the former works.", "sources": ["S2"], "verification": "verified" },
+      "status": "active",
+      "outcome": { "judgment": "worked", "confidence": "medium", "rationale": "Attendance and studio count grew; whether it caused the population rebound is untested.", "evidence_sources": ["S2", "S3"] },
+      "sources": ["S2"]
+    },
+    {
+      "id": "int_str_cap",
+      "name": "Short-term rental cap",
+      "type": "housing_str_regulation",
+      "start": "2019",
+      "lead_actor_ids": ["act_county"],
+      "status": "active",
+      "description": { "value": "Limit of 150 STR permits.", "sources": ["S3"], "verification": "verified" },
+      "outcome": { "judgment": "too_early", "confidence": "low", "rationale": "Only five years of data and a pandemic in between." },
+      "sources": ["S3"]
+    }
+  ],
+  "timeline": [
+    { "date": "1992", "event": "Pottery works closes", "category": "closure", "sources": ["S2"] },
+    { "date": "1994-09", "event": "First Kiln Festival", "category": "founding", "actor_ids": ["act_founder"], "intervention_ids": ["int_festival"], "sources": ["S2"] },
+    { "date": "2015", "event": "Festival sold to outside promoter", "category": "sale_or_acquisition", "actor_ids": ["act_promoter"], "sources": ["S3"], "verification": "disputed" }
+  ],
+  "metrics": {
+    "series": [{
+      "metric": "visitors_annual", "geo_unit_id": "geo_town", "unit": "persons", "role": "treatment",
+      "observations": [
+        { "period": "1995", "value": 2000, "geo_unit_id": "geo_town", "sources": ["S2"], "verification": "verified" },
+        { "period": "2019", "value": 45000, "geo_unit_id": "geo_town", "sources": ["S3"], "verification": "verified", "note": "Festival-reported; tier D source." }
+      ]
+    }],
+    "before_after": [{
+      "metric": "home_price_median", "geo_unit_id": "geo_county",
+      "before": { "period": "1995", "value": 60000, "unit": "nominal currency", "geo_unit_id": "geo_county", "sources": ["S1"], "verification": "verified" },
+      "after": { "period": "2020", "value": 240000, "unit": "nominal currency", "geo_unit_id": "geo_county", "sources": ["S1"], "verification": "verified" },
+      "comparison_trend": { "value": "National median rose ~2.5x over the same period.", "sources": ["S1"], "verification": "verified" },
+      "attribution": { "evidence_type": "descriptive_trend", "statement": "County prices rose faster than the nation; no comparison set yet, so no attribution to the festival.", "confounders": ["Metro-area spillover", "Remote-work demand after 2020"], "confidence": "low" }
+    }],
+    "gaps": ["No town-level wage data before 2001.", "Visitor counts are festival self-reports."]
+  },
+  "value_capture": {
+    "local_ownership": { "value": "Festival locally owned 1994–2015, then foreign-owned.", "sources": ["S3"], "verification": "verified" },
+    "revenue_leakage": { "value": null, "sources": [], "verification": "unverified", "note": "No estimate found." },
+    "local_spinoffs": [
+      { "name": "Falls Clay Studio", "kind": "business", "founded": "1997", "founder_locality": "local_born", "still_operating": true, "sources": ["S2"] }
+    ],
+    "tax_structure": {
+      "visitor_taxes": { "value": "4% county lodging tax, retained by county.", "sources": ["S3"], "verification": "verified" }
+    },
+    "assessment": { "judgment": "Moderate, declining after 2015 sale.", "confidence": "low", "rationale": "Ownership shifted out; spinoff studios remain local.", "evidence_sources": ["S3"] }
+  },
+  "identity": {
+    "before": { "value": "'Factory town.'", "sources": ["S2"], "verification": "verified" },
+    "after": { "value": "'The kiln town.'", "sources": ["S3"], "verification": "verified" },
+    "authors": [
+      { "actor_id": "act_founder", "authorship_role": "originated_story" },
+      { "actor_id": "act_promoter", "authorship_role": "commercialized" }
+    ],
+    "contested": {
+      "value": "Some residents say the promoter's branding erased the factory's labor history.",
+      "sources": ["S4"],
+      "verification": "disputed",
+      "disputes": [{ "account": "Promoter says labor history is central to the program.", "sources": ["S3"] }]
+    },
+    "assessment": { "judgment": "Identity locally originated, now co-authored.", "confidence": "medium", "rationale": "Founder story still dominant in press coverage.", "evidence_sources": ["S2", "S4"] }
+  },
+  "second_order_effects": [{
+    "id": "eff_housing",
+    "domain": "housing_cost",
+    "valence": "negative",
+    "description": { "value": "Rents rose and STR listings grew during the 2010s.", "sources": ["S1"], "verification": "verified" },
+    "lag_years": { "min": 15, "max": 20, "note": "Relative to first festival." },
+    "linked_intervention_ids": ["int_festival"],
+    "affected_groups": ["renters", "festival workers"],
+    "evidence": { "evidence_type": "correlational", "statement": "Timing coincides with festival growth; not tested against comparison towns.", "confidence": "low" },
+    "mitigations_tried": [{
+      "description": { "value": "STR cap in 2019.", "sources": ["S3"], "verification": "verified" },
+      "intervention_id": "int_str_cap",
+      "result": { "judgment": "too_early", "confidence": "low", "rationale": "Insufficient post-period." }
+    }],
+    "confidence": "low"
+  }],
+  "niche_vs_hub_assessment": {
+    "rubric_version": "draft-0",
+    "dimensions": {
+      "origin": { "score": 4, "rationale": "Festival built from local skills and building.", "confidence": "high", "evidence_sources": ["S2"] },
+      "authorship": { "score": 2, "rationale": "Founder story persists but brand is owned by outside promoter.", "confidence": "medium" },
+      "value_capture": { "score": 2, "rationale": "Festival profits leave; studios and lodging tax stay.", "confidence": "low" },
+      "compounding": { "score": 3, "rationale": "Dozen studios founded since.", "confidence": "medium" },
+      "dependency": { "score": 1, "rationale": "Visitor economy concentrated on one weekend.", "confidence": "medium" },
+      "identity_durability": { "score": null, "rationale": "Untested: festival has never been cancelled.", "confidence": "low" }
+    },
+    "archetype_history": [
+      { "archetype": "originator", "period": "1994–2015", "assessment": { "judgment": "originator", "confidence": "medium", "rationale": "Local origin and ownership." } },
+      { "archetype": "originator_turned_hub", "period": "2015–present", "assessment": { "judgment": "originator_turned_hub", "confidence": "low", "rationale": "Outside ownership of the core event." } }
+    ],
+    "current_archetype": { "archetype": "originator_turned_hub", "assessment": { "judgment": "originator_turned_hub", "confidence": "low", "rationale": "See history." } },
+    "transitions": [{
+      "from": "originator", "to": "originator_turned_hub", "period": "2015",
+      "preceding_conditions": ["Founder retirement with no succession plan", "Festival outgrew volunteer capacity"],
+      "decisive_decisions": ["Sale to outside promoter rather than community trust"],
+      "sources": ["S3"],
+      "confidence": "medium"
+    }]
+  },
+  "outcome": {
+    "classification": {
+      "label": "mixed",
+      "success_by_whose_measure": "Success for property owners and studio founders; mixed for renters.",
+      "assessment": { "judgment": "mixed", "confidence": "low", "rationale": "Population rebound alongside affordability loss; no causal test." }
+    },
+    "horizon_years_observed": 30,
+    "who_benefited": { "judgment": "Homeowners, ceramicists, county budget.", "confidence": "medium", "rationale": "Price and tax data." },
+    "who_lost": { "judgment": "Renters and seasonal workers.", "confidence": "low", "rationale": "Rent data only at county level." }
+  },
+  "lessons": [{
+    "lesson": "Plan founder succession before a sale offer arrives.",
+    "applies_when": "A single-founder event has become the town's identity.",
+    "confidence": "low",
+    "supporting_sources": ["S3"]
+  }],
+  "open_questions": ["Did the festival cause the population rebound, or did metro spillover?"],
+  "comparison_candidates": [{ "place": "Millbrook (fictional)", "why_comparable": "Similar size and factory closure in 1991, no festival." }],
+  "sources": [
+    { "id": "S1", "title": "Fictional national census tables", "type": "official_statistics", "tier": "A", "accessed": "2026-10-25" },
+    { "id": "S2", "title": "Fictional local newspaper archive", "type": "historical_newspaper", "tier": "C", "accessed": "2026-10-25" },
+    { "id": "S3", "title": "Fictional festival annual report", "type": "company_document", "tier": "D", "perspective": "promoter", "accessed": "2026-10-25" },
+    { "id": "S4", "title": "Fictional resident oral history", "type": "interview", "tier": "C", "perspective": "resident", "accessed": "2026-10-25" }
+  ],
+  "confidence": {
+    "overall": "low",
+    "data_completeness": "medium",
+    "weakest_sections": ["value_capture", "second_order_effects"],
+    "notes": "Fictional example."
+  }
+}
