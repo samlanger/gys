@@ -176,6 +176,29 @@ details[open] summary { margin-bottom: 6px; }
 .lib-filters { display: flex; flex-wrap: wrap; gap: 10px; margin-bottom: 14px; }
 .lib-filters select { width: auto; }
 
+/* Onboarding */
+.eyebrow { font-size: var(--step--1); letter-spacing: 0.05em; text-transform: uppercase; color: var(--accent); font-weight: 600; margin-bottom: 6px; }
+.masthead .lede { max-width: 66ch; }
+.steps { list-style: none; counter-reset: step; margin: 18px 0 0; padding: 0; display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 12px; }
+@media (max-width: 760px) { .steps { grid-template-columns: minmax(0, 1fr); } }
+.steps li { counter-increment: step; display: grid; grid-template-columns: 30px minmax(0, 1fr); gap: 2px 10px; align-content: start; }
+.steps li::before { content: counter(step); grid-row: span 2; width: 26px; height: 26px; border-radius: 50%; background: var(--accent); color: var(--accent-ink); display: grid; place-items: center; font-family: var(--font-display); font-size: var(--step-0); }
+.steps b { font-weight: 600; }
+.steps span { color: var(--muted); font-size: var(--step--1); }
+.steps a { color: var(--accent); }
+.sheet-actions { display: flex; gap: 12px; }
+.hint { font-size: var(--step--1); color: var(--muted); margin-top: -2px; }
+#sample-flag:empty { display: none; }
+#sample-flag { background: var(--accent-soft); color: var(--ink); padding: 8px 10px; border-radius: 4px; margin: 0; }
+.glossary { background: var(--surface); border: 1px solid var(--line); border-radius: var(--radius); padding: 10px 14px; margin-bottom: 16px; }
+.glossary summary { font-weight: 600; }
+.glossary dl { display: grid; grid-template-columns: max-content minmax(0, 1fr); gap: 6px 14px; margin: 8px 0 4px; font-size: var(--step--1); }
+@media (max-width: 520px) { .glossary dl { grid-template-columns: minmax(0, 1fr); } .glossary dd { margin-bottom: 6px; } }
+.glossary dt { font-weight: 600; }
+.glossary dd { margin: 0; color: var(--muted); }
+.glossary h4 { margin: 12px 0 2px; font-size: var(--step--1); text-transform: uppercase; letter-spacing: 0.05em; color: var(--muted); }
+.empty { background: var(--surface); border: 1px dashed var(--line); border-radius: var(--radius); padding: 18px; color: var(--muted); }
+
 @media (prefers-reduced-motion: no-preference) {
   .bar > span { transition: width 0.3s ease; }
 }
@@ -184,24 +207,35 @@ details[open] summary { margin-bottom: 6px; }
 <div class="wrap">
   <header class="masthead">
     <div>
+      <p class="eyebrow">For tourism boards, town and county leaders, developers and cultural founders</p>
       <h1>Place Transformation Atlas</h1>
-      <p class="lede">Describe your town. See places that started from similar conditions, what they tried, and what happened to the people who lived there.</p>
+      <p class="lede">Towns and cities reinvent themselves all the time, with a museum, a festival, a film, a wine trail or a cap on visitors. This tool shows you places that started out like yours, what they tried, and how it turned out, including who benefited and who lost out.</p>
     </div>
     <div class="coords" id="stamp"></div>
   </header>
+
+  <ol class="steps" aria-label="How to use this tool">
+    <li><b>Describe your town</b><span>Use the form on the left. It starts with a made-up example town that you can edit or clear.</span></li>
+    <li><b>Explore the results</b><span>The tabs on the right update as you click: similar places, ideas that fit, and questions for your board.</span></li>
+    <li><b>Take it to a meeting</b><span>The <a href="#briefing">Board briefing</a> tab turns it all into a one-page summary you can copy.</span></li>
+  </ol>
 
   <div class="notice" id="notice"></div>
 
   <div class="table">
     <form class="sheet" id="profile" autocomplete="off">
       <div class="sheet-head">
-        <h2>Your place</h2>
-        <button type="button" class="linkbtn" id="reset">Load sample town</button>
+        <h2>Your town</h2>
+        <div class="sheet-actions">
+          <button type="button" class="linkbtn" id="reset">Use example</button>
+          <button type="button" class="linkbtn" id="clear">Clear all</button>
+        </div>
       </div>
+      <p class="hint" id="sample-flag"></p>
 
       <div class="field">
         <label for="p-name">Name</label>
-        <input type="text" id="p-name" placeholder="e.g. Millbrook Falls">
+        <input type="text" id="p-name" placeholder="Your town's name">
       </div>
 
       <div class="row2">
@@ -225,21 +259,21 @@ details[open] summary { margin-bottom: 6px; }
         <div class="toggle" id="p-decline" role="group" aria-label="Economy in decline"></div>
       </div>
 
-      <div class="field"><span class="label">Setting</span><div class="chips" id="p-settings"></div></div>
-      <div class="field"><span class="label">Economy today</span><div class="chips" id="p-sectors"></div></div>
-      <div class="field"><span class="label">What you have</span><div class="chips" id="p-assets"></div></div>
-      <div class="field"><span class="label">Constraints</span><div class="chips" id="p-constraints"></div></div>
-      <div class="field"><span class="label">What the board wants</span><div class="chips" id="p-ambitions"></div></div>
+      <div class="field"><span class="label">Setting</span><span class="hint">What kind of place is it? Pick all that apply.</span><div class="chips" id="p-settings"></div></div>
+      <div class="field"><span class="label">Economy today</span><span class="hint">The main ways people earn a living there.</span><div class="chips" id="p-sectors"></div></div>
+      <div class="field"><span class="label">What you have</span><span class="hint">Things you could build on, even if nobody uses them yet.</span><div class="chips" id="p-assets"></div></div>
+      <div class="field"><span class="label">What makes change hard</span><span class="hint">Problems that limit your options.</span><div class="chips" id="p-constraints"></div></div>
+      <div class="field"><span class="label">What you want</span><span class="hint">Your board's goals. Pick one or two.</span><div class="chips" id="p-ambitions"></div></div>
     </form>
 
     <main>
       <nav class="tabs" id="tabs" aria-label="Results">
-        <a href="#analogs">Analogs</a>
-        <a href="#moves">Moves</a>
-        <a href="#niche">Niche finder</a>
-        <a href="#provocations">Provocations</a>
-        <a href="#briefing">Briefing</a>
-        <a href="#library">Library</a>
+        <a href="#analogs">Similar places</a>
+        <a href="#moves">Ideas that fit</a>
+        <a href="#niche">What's uniquely yours</a>
+        <a href="#provocations">Bold combinations</a>
+        <a href="#briefing">Board briefing</a>
+        <a href="#library">All places</a>
       </nav>
       <section id="view"></section>
     </main>
@@ -315,8 +349,24 @@ var AMBITIONS = {
 var REMOTE = { metro: "Under 1.5 h", regional: "1.5–4 h", remote: "Over 4 h" };
 var OUTCOMES = { success: "Success", mixed: "Mixed", cautionary: "Cautionary", failure: "Failure", too_early: "Too early" };
 var OUTCOME_VAL = { success: 1, mixed: 0.25, cautionary: -0.6, failure: -1, too_early: 0 };
-var ARCH = { originator: "Originator", originator_turned_hub: "Originator → hub", host: "Host", host_turned_originator: "Host → originator",
-  hollowed_hub: "Hollowed hub", deliberate_steward: "Deliberate steward", unclassified: "Unclassified" };
+var OUTCOME_DESC = {
+  success: "Did what it set out to do, and residents broadly shared in the gains.",
+  mixed: "Real gains came with real costs, often rising housing prices.",
+  cautionary: "Worked for visitors or investors but hurt residents, the environment or the place's character.",
+  failure: "Didn't deliver, or left lasting costs such as debt or empty buildings.",
+  too_early: "Started too recently to judge."
+};
+var ARCH = { originator: "Homegrown", originator_turned_hub: "Homegrown, now outside-owned", host: "Host for outsiders", host_turned_originator: "Host that grew its own",
+  hollowed_hub: "Hollowed out", deliberate_steward: "Chose to limit growth", unclassified: "Not yet classified" };
+var ARCH_DESC = {
+  originator: "The main draw was created locally and local people mostly own it.",
+  originator_turned_hub: "It started local, but outside companies or investors now dominate.",
+  host: "The main draw was brought in from outside (a theme park, a franchise museum, a film). The town supplies land and workers.",
+  host_turned_originator: "It started by hosting outsiders, then grew its own businesses and talent.",
+  hollowed_hub: "Once a center of something, the industry left and the identity outlived the jobs.",
+  deliberate_steward: "Chose to cap or slow growth to keep control.",
+  unclassified: "Not enough evidence to say yet."
+};
 var BANDS = ["tiny", "small", "medium", "large", "national"];
 var BAND_LABEL = { tiny: "under 5k", small: "5k–50k", medium: "50k–500k", large: "500k+", national: "country" };
 
@@ -384,8 +434,18 @@ function cap(s) { return s.charAt(0).toUpperCase() + s.slice(1); }
 function band(n) { if (!n && n !== 0) return null; return n < 5000 ? "tiny" : n < 50000 ? "small" : n < 500000 ? "medium" : "large"; }
 function jaccard(a, b) { if (!a.length || !b.length) return 0; var s = 0; a.forEach(function (x) { if (b.indexOf(x) >= 0) s++; }); return s / (a.length + b.length - s); }
 function overlap(a, b) { return a.filter(function (x) { return b.indexOf(x) >= 0; }); }
-function pill(o) { return '<span class="pill o-' + o + '">' + OUTCOMES[o] + "</span>"; }
-function verifiedTag(c) { return c.verified ? '<span class="tag">researched</span>' : '<span class="tag unv" title="From general knowledge; pending Phase 2 verification">unverified</span>'; }
+function pill(o) { return '<span class="pill o-' + o + '" title="' + esc(OUTCOME_DESC[o]) + '">' + OUTCOMES[o] + "</span>"; }
+function verifiedTag(c) { return c.verified ? '<span class="tag" title="Researched with cited sources">fact-checked</span>' : '<span class="tag unv" title="Written from general knowledge; not yet checked against sources">not yet fact-checked</span>'; }
+function profileEmpty() { return !P.settings.length && !P.sectors.length && !P.assets.length && !P.pop; }
+function emptyNote() { return '<div class="empty">Start by filling in a few things about your town on the left: its size, setting and what it has. Results will appear here as you go.</div>'; }
+function glossary(open) {
+  return '<details class="glossary"' + (open ? " open" : "") + '><summary>What the labels mean</summary>' +
+    "<h4>How it turned out</h4><dl>" + Object.keys(OUTCOMES).map(function (k) { return "<dt>" + pill(k) + "</dt><dd>" + esc(OUTCOME_DESC[k]) + "</dd>"; }).join("") + "</dl>" +
+    "<h4>Who owns what made it famous</h4><dl>" + Object.keys(ARCH).map(function (k) { return "<dt>" + esc(ARCH[k]) + "</dt><dd>" + esc(ARCH_DESC[k]) + "</dd>"; }).join("") + "</dl>" +
+    "<h4>Other terms</h4><dl><dt>% similar</dt><dd>How closely the place's starting point matches your town: size, setting, economy, what it had, distance to a city, and whether it was in decline.</dd>" +
+    '<dt><span class="tag unv">not yet fact-checked</span></dt><dd>Written from general knowledge for this preview. Every place will be researched with sources before the tool is used for real decisions.</dd>' +
+    "<dt>Grey tags</dt><dd>The kinds of moves the place made, such as a museum, a festival or visitor limits.</dd></dl></details>";
+}
 
 /* ---------- Scoring ---------- */
 function similarity(c) {
@@ -564,14 +624,24 @@ $("p-pop").addEventListener("input", function (e) { P.pop = e.target.value === "
 $("p-region").addEventListener("change", function (e) { P.region = e.target.value; changed(); });
 $("profile").addEventListener("submit", function (e) { e.preventDefault(); });
 $("reset").addEventListener("click", function () { P = JSON.parse(JSON.stringify(SAMPLE)); renderForm(); changed(); });
+$("clear").addEventListener("click", function () {
+  P = { name: "", pop: null, region: "", remote: "", decline: "", settings: [], sectors: [], assets: [], constraints: [], ambitions: [] };
+  renderForm(); changed(); $("p-name").focus();
+});
 
 var timer = null;
-function changed() { save("atlas.profile", P); clearTimeout(timer); timer = setTimeout(renderView, 60); }
+function changed() { save("atlas.profile", P); sampleFlag(); clearTimeout(timer); timer = setTimeout(renderView, 60); }
+function sampleFlag() {
+  $("sample-flag").textContent = P.name === SAMPLE.name
+    ? "This is a made-up example town so you can see how the tool works. Change anything below, or press Clear all to start with your own town."
+    : "";
+}
 
 /* ---------- Rendering: views ---------- */
 function viewAnalogs() {
+  if (profileEmpty()) return emptyNote();
   var list = analogs().slice(0, 10);
-  return '<p class="panel-intro">The ten cases whose starting conditions look most like yours. Similarity weighs size, setting, economy, assets, distance to a city and whether the place was in decline. Read the failures as closely as the successes.</p><div class="stack">' +
+  return '<p class="panel-intro">These are the 10 places whose starting point looks most like your town, and what happened after they tried to change. Some worked and some went badly. The ones that went badly are often the most useful to read.</p>' + glossary(false) + '<div class="stack">' +
     list.map(function (x) { return caseCard(x.c, x); }).join("") + "</div>";
 }
 function caseCard(c, x) {
@@ -582,7 +652,7 @@ function caseCard(c, x) {
       (x.why.length ? '<p class="why">Shared: ' + esc(x.why.join(" · ")) + "</p>" : "") : "") +
     "<p>" + esc(c.summary) + "</p>" +
     '<div class="tags">' + c.interventions.map(function (i) { return '<span class="tag">' + esc(LABEL[i] || i) + "</span>"; }).join("") + "</div>" +
-    (c.effects && c.effects.length ? '<p class="why">Side effects: ' + esc(c.effects.map(nice).join(", ")) + "</p>" : "") +
+    (c.effects && c.effects.length ? '<p class="why">Knock-on effects: ' + esc(c.effects.map(nice).join(", ")) + "</p>" : "") +
     (c.lesson ? '<p class="lesson">' + esc(c.lesson) + "</p>" : "") +
     "</article>";
 }
@@ -596,23 +666,24 @@ function recordBar(r) {
   return '<div class="record" role="img" aria-label="' + esc(txt) + '">' + seg + '</div><span class="why">' + r.n + " cases: " + esc(txt) + "</span>";
 }
 function viewMoves() {
+  if (profileEmpty()) return emptyNote();
   var mv = moves(analogs()).slice(0, 10);
   var housingNote = P.constraints.map(function (k) { return CONSTRAINT_FIT[k] && CONSTRAINT_FIT[k].note; }).filter(Boolean);
-  return '<p class="panel-intro">Intervention types ranked by fit with your assets, goals and constraints, then adjusted by how they turned out in your closest analogs. The fit rules are rough editorial heuristics until the researched cases replace them.</p>' +
-    (housingNote.length ? '<div class="notice"><span><strong>Your constraints.</strong> ' + esc(housingNote.join(" ")) + "</span></div>" : "") +
+  return '<p class="panel-intro">These are the 10 kinds of moves that best match what your town has and what you want, best fit first. Each one shows how often it worked elsewhere and what tends to go wrong. The ranking is a starting point for discussion, not a recommendation.</p>' +
+    (housingNote.length ? '<div class="notice"><span><strong>Keep in mind.</strong> ' + esc(housingNote.join(" ")) + "</span></div>" : "") +
     '<div class="stack">' + mv.map(function (m, i) {
       return '<article class="move"><div class="rank">' + (i + 1) + '</div><div class="move-body">' +
         '<div><div class="family">' + esc(m.t.family_name) + '</div><h3>' + esc(LABEL[m.code]) + '</h3></div>' +
         "<p>" + esc(m.t.definition || "") + "</p>" +
-        (m.plus.length ? '<p class="why"><b>Fits:</b> ' + esc(m.plus.join(" · ")) + "</p>" : "") +
-        (m.minus.length ? '<p class="why"><b>Against:</b> ' + esc(m.minus.join(" · ")) + "</p>" : "") +
-        "<div>" + recordBar(m.rec) + "</div>" +
-        (m.used.length ? '<p class="why">Used by your analogs: ' + esc(m.used.map(function (c) { return c.name + " (" + OUTCOMES[c.outcome].toLowerCase() + ")"; }).join(", ")) + "</p>" : "") +
+        (m.plus.length ? '<p class="why"><b>Why it fits:</b> ' + esc(m.plus.join(" · ")) + "</p>" : "") +
+        (m.minus.length ? '<p class="why"><b>Why it might not:</b> ' + esc(m.minus.join(" · ")) + "</p>" : "") +
+        '<div><span class="why"><b>How it went elsewhere</b></span>' + recordBar(m.rec) + "</div>" +
+        (m.used.length ? '<p class="why">Tried by places similar to yours: ' + esc(m.used.map(function (c) { return c.name + " (" + OUTCOMES[c.outcome].toLowerCase() + ")"; }).join(", ")) + "</p>" : "") +
         (m.t.risks ? '<p class="risk"><b>Watch for:</b> ' + esc(m.t.risks) + "</p>" : "") +
         "<details><summary>How it works</summary><div class=\"def\">" +
-          (m.t.mechanism ? "<p><b>Mechanism.</b> " + esc(m.t.mechanism) + "</p>" : "") +
-          (m.t.niche_hub ? "<p><b>Niche or hub.</b> " + esc(m.t.niche_hub) + "</p>" : "") +
-          (m.t.illustrative ? "<p><b>Examples (unverified).</b> " + esc(m.t.illustrative) + "</p>" : "") +
+          (m.t.mechanism ? "<p><b>Why it works.</b> " + esc(m.t.mechanism) + "</p>" : "") +
+          (m.t.niche_hub ? "<p><b>Who tends to keep the money.</b> " + esc(m.t.niche_hub) + "</p>" : "") +
+          (m.t.illustrative ? "<p><b>Examples (not yet fact-checked).</b> " + esc(m.t.illustrative) + "</p>" : "") +
         "</div></details>" +
         "</div></article>";
     }).join("") + "</div>";
@@ -625,7 +696,7 @@ function nicheQuestions() {
 }
 function viewNiche() {
   var dims = nicheQuestions(), qi = 0;
-  return '<p class="panel-intro">Questions for a board meeting, grouped by the six things that separate places that originate something from places that host someone else\'s. Answers stay in this browser and go into the briefing.</p><div class="stack">' +
+  return '<p class="panel-intro">The places that do best usually build on something only they have, instead of copying another town or hosting an outside company\'s attraction. These questions help your board find that something. Type notes in any box. They are saved in this browser only and added to your board briefing.</p><div class="stack">' +
     dims.map(function (x) {
       return '<section class="dim"><div class="dim-head"><h3>' + esc(x.d.name) + '</h3><span class="why">' + esc(x.d.hint) + "</span></div>" +
         x.qs.map(function (q) {
@@ -636,9 +707,10 @@ function viewNiche() {
 }
 
 function viewProvocations() {
+  if (profileEmpty()) return emptyNote();
   var pv = provocations(moves(analogs()));
-  if (!pv.length) return '<p class="panel-intro">Add a few assets and goals to generate provocations.</p>';
-  return '<p class="panel-intro">Unusual pairings of moves that both fit your profile, chosen from different families and favoring combinations few places have tried. Each comes with the ways its parts have failed elsewhere.</p><div class="stack">' +
+  if (!pv.length) return '<div class="empty">Pick a few things your town has and a goal or two on the left to see combinations.</div>';
+  return '<p class="panel-intro">Original ideas often come from pairing two moves that rarely go together. Each pair below fits your town. Under each one you\'ll find what went wrong when places tried its parts, and questions to answer before you commit.</p><div class="stack">' +
     pv.map(function (p) {
       var bad = p.a.rec.cases.concat(p.b.rec.cases).filter(function (c, i, arr) { return (c.outcome === "failure" || c.outcome === "cautionary") && arr.indexOf(c) === i; });
       return '<article class="prov"><div class="combo"><span class="tag">' + esc(LABEL[p.a.code]) + '</span><span class="plus">+</span><span class="tag">' + esc(LABEL[p.b.code]) + "</span></div>" +
@@ -661,38 +733,38 @@ function briefingMarkdown() {
   L.push("");
   L.push("## Profile");
   L.push("- Population: " + (P.pop ? Number(P.pop).toLocaleString() : "not given") + (P.region ? " · " + P.region : ""));
-  L.push("- Distance to a major city: " + (REMOTE[P.remote] || "not given") + " · in decline: " + (P.decline === "yes" ? "yes" : "no"));
+  L.push("- Distance to a major city: " + (REMOTE[P.remote] || "not given") + " · economy in decline: " + (P.decline === "yes" ? "yes" : "no"));
   if (P.settings.length) L.push("- Setting: " + P.settings.map(nice).join(", "));
   if (P.sectors.length) L.push("- Economy: " + P.sectors.map(nice).join(", "));
   if (P.assets.length) L.push("- Assets: " + P.assets.map(function (a) { return ASSETS[a]; }).join(", "));
   if (P.constraints.length) L.push("- Constraints: " + P.constraints.map(function (a) { return CONSTRAINTS[a]; }).join(", "));
   if (P.ambitions.length) L.push("- Goals: " + P.ambitions.map(function (a) { return AMBITIONS[a]; }).join(", "));
   L.push("");
-  L.push("## Closest analogs");
+  L.push("## Similar places and what happened");
   an.forEach(function (x) {
     L.push("- **" + x.c.name + "** (" + x.c.country + ", from " + x.c.start + ") · " + OUTCOMES[x.c.outcome] + " · " + x.pct + "% similar. " + x.c.summary + (x.c.lesson ? " *Lesson:* " + x.c.lesson : ""));
   });
   L.push("");
-  L.push("## Moves that fit");
+  L.push("## Ideas that fit");
   mv.slice(0, 5).forEach(function (m) {
     L.push("- **" + LABEL[m.code] + "**. " + (m.t.definition || "") + (m.t.risks ? " *Watch for:* " + m.t.risks : ""));
   });
   L.push("");
-  L.push("## Provocations");
+  L.push("## Bold combinations to discuss");
   pv.slice(0, 3).forEach(function (p) {
     L.push("- **" + cap(PITCH[p.a.code]) + ", and " + PITCH[p.b.code] + ".** " + stressQuestions(p).join(" "));
   });
   var answered = Object.keys(NOTES).filter(function (q) { return NOTES[q] && NOTES[q].trim(); });
   if (answered.length) {
     L.push("");
-    L.push("## What is ours (board notes)");
+    L.push("## What is uniquely ours (board notes)");
     answered.forEach(function (q) { L.push("- **" + q + "** " + NOTES[q].trim().replace(/\n+/g, " ")); });
   }
   L.push("");
   L.push("## Caveats");
-  L.push("- Analog cases are preview stubs written from general knowledge and not yet verified against sources.");
-  L.push("- Outcomes describe what happened, not what caused it. No causal comparisons have been run yet.");
-  L.push("- Fit rankings use editorial rules of thumb.");
+  L.push("- The example places come from an early preview and have not been fact-checked yet.");
+  L.push("- Outcomes describe what happened next, not proof of what caused it.");
+  L.push("- The idea rankings use rules of thumb and are a starting point for discussion.");
   return L.join("\n");
 }
 function mdToHtml(md) {
@@ -709,8 +781,8 @@ function mdToHtml(md) {
   return html.join("");
 }
 function viewBriefing() {
-  return '<p class="panel-intro">A one-page briefing built from your profile, analogs, moves and niche notes. Copy it as Markdown into a doc or email.</p>' +
-    '<div class="brief-actions"><button type="button" class="btn" id="copy-md">Copy as Markdown</button><span class="why" id="copy-status" aria-live="polite"></span></div>' +
+  return '<p class="panel-intro">A one-page summary of everything above, ready for a board meeting. Press the button to copy it, then paste it into an email or document.</p>' +
+    '<div class="brief-actions"><button type="button" class="btn" id="copy-md">Copy briefing</button><span class="why" id="copy-status" aria-live="polite"></span></div>' +
     '<div id="copy-fallback-wrap" hidden><textarea class="copy-fallback" id="copy-fallback" readonly></textarea></div>' +
     '<article class="doc">' + mdToHtml(briefingMarkdown()) + "</article>";
 }
@@ -724,7 +796,7 @@ function viewLibrary() {
   var list = A.cases.filter(function (c) { return (!LIB.outcome || c.outcome === LIB.outcome) && (!LIB.type || c.interventions.indexOf(LIB.type) >= 0); })
     .sort(function (a, b) { return a.name.localeCompare(b.name); });
   var researched = A.cases.filter(function (c) { return c.verified; }).length;
-  return '<p class="panel-intro">Every case in the atlas. The project aims for about one failure or cautionary case for every two successes, to counter survivorship bias.</p>' +
+  return '<p class="panel-intro">Every place in the atlas. Most research only studies places that succeeded, which makes everything look like it works. We deliberately include about one failure or cautionary tale for every two successes.</p>' + glossary(false) +
     '<div class="lib-stats"><div class="ratio" role="img" aria-label="Outcome mix">' + Object.keys(counts).map(function (k) { return counts[k] ? '<span style="width:' + (100 * counts[k] / n) + "%;background:" + cols[k] + '" title="' + OUTCOMES[k] + ": " + counts[k] + '"></span>' : ""; }).join("") + "</div>" +
     '<span class="mono">' + n + " cases · " + counts.success + " success · " + neg + " cautionary or failure · " + researched + " researched</span></div>" +
     '<div class="lib-filters"><select id="lib-outcome" aria-label="Filter by outcome"><option value="">All outcomes</option>' +
@@ -767,11 +839,12 @@ $("view").addEventListener("click", function (e) {
 
 /* ---------- Boot ---------- */
 var nResearched = A.cases.filter(function (c) { return c.verified; }).length;
-$("stamp").innerHTML = "schema v0.1.0<br>" + A.types.length + " intervention types<br>" + A.cases.length + " cases · " + nResearched + " researched";
+$("stamp").innerHTML = A.cases.length + " places<br>" + A.types.length + " kinds of moves<br>" + (nResearched === A.cases.length ? "all fact-checked" : "early preview");
 $("notice").innerHTML = nResearched === A.cases.length
-  ? "<span><strong>Researched data.</strong> All cases are sourced case cards.</span>"
-  : "<span><strong>Prototype.</strong> " + (A.cases.length - nResearched) + " of " + A.cases.length + " cases are unverified preview stubs written from general knowledge. They show how the tool works and will be replaced by sourced case cards in Phase 3. Don't cite them.</span>";
+  ? "<span><strong>Fact-checked.</strong> Every place in the atlas has been researched with cited sources.</span>"
+  : "<span><strong>Early preview.</strong> The " + (A.cases.length - nResearched) + " places in this version were written from general knowledge to show how the tool works. They haven't been fact-checked yet, so use them to explore ideas, not to quote facts.</span>";
 renderForm();
+sampleFlag();
 renderView();
 })();
 </script>
