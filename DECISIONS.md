@@ -45,3 +45,9 @@ Schema changes and judgment calls, newest last. Each entry: date · phase · dec
 ## 2026-10-25 · Phase 1 · Taxonomy examples are unverified
 - **Decision:** The illustrative cases in `taxonomy.md` are labeled as candidates. They are not sourced claims.
 - **Why:** The rule is "Do not trust memory." They'll be verified, or dropped, during Phase 2.
+
+## 2026-10-27 · Phase 8 (early prototype, at user request) · Analog finder built before case research
+- **Decision:** Built a working `/app` prototype ahead of Phases 2–7, because the user asked for something to try out. It runs on the real taxonomy plus 55 **unverified preview stubs** (`data/preview_cases.json`), written from general knowledge and labeled as unverified throughout the UI and the exported briefing.
+- **Why:** This lets the user test the profile → analogs → moves → briefing flow early. Their feedback can then shape the schema before case research starts.
+- **Guardrails:** Preview stubs carry no sources and must not be cited. Researched cards in `/cases` override them by id. The outcome mix in the stubs (12 success, 16 cautionary or failure, 24 mixed, 3 too early) keeps the 1:2 ratio in view. The fit heuristics are marked as editorial.
+- **Status:** Phase 1 schema approval is still pending. Phase 2 will verify the stubs, or drop them.

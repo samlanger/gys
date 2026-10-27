@@ -102,3 +102,4 @@ Build a simple local web app (`/app`):
 
 ## Status
 - Phase 1 (schema + taxonomy) drafted 2026-10-25 — **awaiting approval**.
+- App prototype (`/app`, run `python3 app/build.py`) built 2026-10-27 on unverified preview cases.

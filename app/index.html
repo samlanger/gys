@@ -1,0 +1,777 @@
+<title>Place Transformation Atlas</title>
+<meta name="claude:viewport-fit-sides" content="cover">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Young+Serif&family=Public+Sans:ital,wght@0,400;0,500;0,600;0,700;1,400&family=IBM+Plex+Mono:wght@400;500&display=swap">
+<style>
+/* Layout: a survey-office worktable. Town profile on the left like a field sheet, findings on the right in tabs. */
+:root {
+  --paper: #eef2ef;
+  --surface: #ffffff;
+  --sunk: #e4eae6;
+  --ink: #17232a;
+  --muted: #56666e;
+  --line: #d0d9d4;
+  --accent: #1d6a64;
+  --accent-ink: #ffffff;
+  --accent-soft: #d8e9e5;
+  --warn: #9a5f0c;
+  --warn-soft: #f6ead6;
+  --o-success: #2b7a4b;
+  --o-mixed: #7d6f12;
+  --o-cautionary: #b0581a;
+  --o-failure: #a3352d;
+  --o-too_early: #66717a;
+  --font-display: "Young Serif", Georgia, "Times New Roman", serif;
+  --font-body: "Public Sans", system-ui, -apple-system, "Segoe UI", sans-serif;
+  --font-mono: "IBM Plex Mono", ui-monospace, "SFMono-Regular", Menlo, monospace;
+  --step--1: 0.8125rem;
+  --step-0: 0.9375rem;
+  --step-1: 1.125rem;
+  --step-2: 1.4rem;
+  --step-3: 2rem;
+  --radius: 6px;
+}
+@media (prefers-color-scheme: dark) {
+  :root:not([data-theme="light"]) {
+    --paper: #0f161a; --surface: #162026; --sunk: #1c282f; --ink: #e2e9e5; --muted: #95a5ab; --line: #2a3840;
+    --accent: #62b5aa; --accent-ink: #0b1513; --accent-soft: #1b3431; --warn: #e0a94f; --warn-soft: #2f2617;
+    --o-success: #5fbf86; --o-mixed: #c9b74a; --o-cautionary: #e8914f; --o-failure: #ec7a70; --o-too_early: #9aa5ad;
+    color-scheme: dark;
+  }
+}
+:root[data-theme="dark"] {
+  --paper: #0f161a; --surface: #162026; --sunk: #1c282f; --ink: #e2e9e5; --muted: #95a5ab; --line: #2a3840;
+  --accent: #62b5aa; --accent-ink: #0b1513; --accent-soft: #1b3431; --warn: #e0a94f; --warn-soft: #2f2617;
+  --o-success: #5fbf86; --o-mixed: #c9b74a; --o-cautionary: #e8914f; --o-failure: #ec7a70; --o-too_early: #9aa5ad;
+  color-scheme: dark;
+}
+
+* { box-sizing: border-box; }
+html, body { background: var(--paper); }
+body {
+  color: var(--ink);
+  font-family: var(--font-body);
+  font-size: var(--step-0);
+  line-height: 1.55;
+  padding-left: max(16px, env(safe-area-inset-left, 0px));
+  padding-right: max(16px, env(safe-area-inset-right, 0px));
+  padding-block: 0 48px;
+}
+.wrap { max-width: 1240px; margin: 0 auto; }
+h1, h2, h3 { font-family: var(--font-display); font-weight: 400; text-wrap: balance; margin: 0; line-height: 1.2; }
+h1 { font-size: var(--step-3); }
+h2 { font-size: var(--step-2); }
+h3 { font-size: var(--step-1); }
+p { margin: 0; }
+.mono { font-family: var(--font-mono); font-size: var(--step--1); }
+.muted { color: var(--muted); }
+button, input, select, textarea { font: inherit; color: inherit; }
+:focus-visible { outline: 2px solid var(--accent); outline-offset: 2px; }
+
+/* Masthead */
+.masthead { display: flex; flex-wrap: wrap; align-items: end; justify-content: space-between; gap: 12px 24px; padding-block: 28px 18px; border-bottom: 1px solid var(--line); }
+.masthead .lede { max-width: 60ch; color: var(--muted); margin-top: 6px; }
+.coords { font-family: var(--font-mono); font-size: var(--step--1); color: var(--muted); text-align: right; line-height: 1.6; }
+.notice { display: flex; gap: 10px; align-items: start; margin-block: 16px; padding: 10px 14px; background: var(--warn-soft); color: var(--ink); border-left: 3px solid var(--warn); border-radius: var(--radius); font-size: var(--step--1); }
+.notice strong { color: var(--warn); }
+
+/* Two-column worktable */
+.table { display: grid; grid-template-columns: minmax(0, 340px) minmax(0, 1fr); gap: 28px; align-items: start; }
+@media (max-width: 900px) { .table { grid-template-columns: minmax(0, 1fr); } }
+
+/* Field sheet */
+.sheet { background: var(--surface); border: 1px solid var(--line); border-radius: var(--radius); padding: 18px; display: grid; gap: 18px; position: sticky; top: calc(env(safe-area-inset-top, 0px) + 12px); max-height: calc(100vh - 24px); overflow-y: auto; }
+@media (max-width: 900px) { .sheet { position: static; max-height: none; } }
+.sheet-head { display: flex; justify-content: space-between; align-items: baseline; gap: 8px; }
+.field { display: grid; gap: 6px; }
+.field > label, .field > .label { font-size: var(--step--1); font-weight: 600; letter-spacing: 0.04em; text-transform: uppercase; color: var(--muted); }
+.row2 { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; }
+input[type="text"], input[type="number"], select, textarea {
+  width: 100%; background: var(--paper); border: 1px solid var(--line); border-radius: 4px; padding: 7px 9px;
+}
+textarea { min-height: 64px; resize: vertical; }
+.chips { display: flex; flex-wrap: wrap; gap: 6px; }
+.chip {
+  border: 1px solid var(--line); background: transparent; border-radius: 999px; padding: 3px 10px; font-size: var(--step--1);
+  cursor: pointer; line-height: 1.5;
+}
+.chip:hover { border-color: var(--accent); }
+.chip[aria-pressed="true"] { background: var(--accent); color: var(--accent-ink); border-color: var(--accent); }
+.toggle { display: flex; gap: 0; border: 1px solid var(--line); border-radius: 4px; overflow: hidden; }
+.toggle button { flex: 1; border: 0; background: transparent; padding: 6px 8px; font-size: var(--step--1); cursor: pointer; }
+.toggle button[aria-pressed="true"] { background: var(--accent); color: var(--accent-ink); }
+.linkbtn { background: none; border: 0; padding: 0; color: var(--accent); cursor: pointer; font-size: var(--step--1); text-decoration: underline; text-underline-offset: 2px; }
+
+/* Tabs */
+.tabs { display: flex; flex-wrap: wrap; gap: 4px 18px; border-bottom: 1px solid var(--line); margin-bottom: 20px; }
+.tabs a { padding: 8px 0; color: var(--muted); text-decoration: none; border-bottom: 2px solid transparent; margin-bottom: -1px; font-weight: 500; }
+.tabs a[aria-current="page"] { color: var(--ink); border-bottom-color: var(--accent); }
+.tabs a:hover { color: var(--ink); }
+.panel-intro { color: var(--muted); max-width: 68ch; margin-bottom: 18px; }
+.stack { display: grid; gap: 14px; }
+
+/* Case cards */
+.case { background: var(--surface); border: 1px solid var(--line); border-radius: var(--radius); padding: 14px 16px; display: grid; gap: 8px; min-width: 0; }
+.case-top { display: flex; flex-wrap: wrap; gap: 6px 12px; align-items: baseline; justify-content: space-between; }
+.case-name { font-family: var(--font-display); font-size: var(--step-1); }
+.meta { display: flex; flex-wrap: wrap; gap: 6px 10px; align-items: center; font-size: var(--step--1); color: var(--muted); }
+.pill { display: inline-flex; align-items: center; gap: 5px; font-size: var(--step--1); font-weight: 600; padding: 1px 8px; border-radius: 999px; border: 1px solid currentColor; white-space: nowrap; }
+.pill::before { content: ""; width: 7px; height: 7px; border-radius: 50%; background: currentColor; }
+.o-success { color: var(--o-success); } .o-mixed { color: var(--o-mixed); } .o-cautionary { color: var(--o-cautionary); }
+.o-failure { color: var(--o-failure); } .o-too_early { color: var(--o-too_early); }
+.tag { font-family: var(--font-mono); font-size: 0.75rem; background: var(--sunk); padding: 1px 6px; border-radius: 3px; color: var(--ink); white-space: nowrap; }
+.tag.unv { background: var(--warn-soft); color: var(--warn); }
+.tags { display: flex; flex-wrap: wrap; gap: 5px; }
+.sim { display: grid; grid-template-columns: 90px 1fr; gap: 10px; align-items: center; }
+.bar { height: 6px; background: var(--sunk); border-radius: 3px; overflow: hidden; }
+.bar > span { display: block; height: 100%; background: var(--accent); }
+.lesson { border-left: 2px solid var(--line); padding-left: 10px; color: var(--muted); font-size: var(--step--1); }
+.why { font-size: var(--step--1); color: var(--muted); }
+
+/* Moves */
+.move { background: var(--surface); border: 1px solid var(--line); border-radius: var(--radius); padding: 14px 16px; display: grid; grid-template-columns: 44px minmax(0, 1fr); gap: 4px 14px; }
+.rank { font-family: var(--font-display); font-size: var(--step-2); color: var(--accent); line-height: 1; }
+.move-body { display: grid; gap: 8px; min-width: 0; }
+.family { font-size: 0.75rem; letter-spacing: 0.06em; text-transform: uppercase; color: var(--muted); }
+.record { display: flex; height: 8px; border-radius: 4px; overflow: hidden; background: var(--sunk); max-width: 260px; }
+.record span { display: block; height: 100%; }
+.record .s { background: var(--o-success); } .record .m { background: var(--o-mixed); } .record .c { background: var(--o-cautionary); }
+.record .f { background: var(--o-failure); } .record .t { background: var(--o-too_early); }
+.risk { font-size: var(--step--1); background: var(--warn-soft); border-radius: 4px; padding: 6px 10px; }
+.risk b { color: var(--warn); }
+details summary { cursor: pointer; color: var(--accent); font-size: var(--step--1); }
+details[open] summary { margin-bottom: 6px; }
+.def { font-size: var(--step--1); display: grid; gap: 4px; }
+
+/* Niche finder */
+.dim { background: var(--surface); border: 1px solid var(--line); border-radius: var(--radius); padding: 14px 16px; display: grid; gap: 10px; }
+.dim-head { display: flex; justify-content: space-between; gap: 10px; align-items: baseline; flex-wrap: wrap; }
+.q { display: grid; gap: 4px; }
+.q label { font-weight: 500; }
+
+/* Provocations */
+.prov { background: var(--surface); border: 1px solid var(--line); border-radius: var(--radius); padding: 16px; display: grid; gap: 10px; }
+.prov h3 { font-size: var(--step-1); }
+.combo { display: flex; flex-wrap: wrap; gap: 6px; align-items: center; }
+.plus { color: var(--muted); }
+.test { display: grid; gap: 6px; font-size: var(--step--1); }
+.test ul { margin: 0; padding-left: 18px; }
+
+/* Briefing */
+.brief-actions { display: flex; gap: 10px; align-items: center; flex-wrap: wrap; margin-bottom: 14px; }
+.btn { background: var(--accent); color: var(--accent-ink); border: 0; border-radius: 4px; padding: 8px 14px; font-weight: 600; cursor: pointer; }
+.btn.secondary { background: transparent; color: var(--accent); border: 1px solid var(--accent); }
+.doc { background: var(--surface); border: 1px solid var(--line); border-radius: var(--radius); padding: 24px clamp(16px, 4vw, 40px); max-width: 78ch; }
+.doc h1 { font-size: var(--step-2); margin-bottom: 4px; }
+.doc h2 { font-size: var(--step-1); margin: 22px 0 8px; padding-top: 14px; border-top: 1px solid var(--line); }
+.doc p, .doc li { margin: 0 0 6px; }
+.doc ul { margin: 0 0 8px; padding-left: 20px; }
+.copy-fallback { width: 100%; min-height: 220px; font-family: var(--font-mono); font-size: var(--step--1); }
+
+/* Library */
+.lib-stats { display: flex; flex-wrap: wrap; gap: 8px 20px; align-items: center; margin-bottom: 14px; font-size: var(--step--1); }
+.ratio { display: flex; height: 10px; border-radius: 5px; overflow: hidden; width: min(100%, 420px); background: var(--sunk); }
+.ratio span { height: 100%; }
+.lib-filters { display: flex; flex-wrap: wrap; gap: 10px; margin-bottom: 14px; }
+.lib-filters select { width: auto; }
+
+@media (prefers-reduced-motion: no-preference) {
+  .bar > span { transition: width 0.3s ease; }
+}
+</style>
+
+<div class="wrap">
+  <header class="masthead">
+    <div>
+      <h1>Place Transformation Atlas</h1>
+      <p class="lede">Describe your town. See places that started from similar conditions, what they tried, and what happened to the people who lived there.</p>
+    </div>
+    <div class="coords" id="stamp"></div>
+  </header>
+
+  <div class="notice" id="notice"></div>
+
+  <div class="table">
+    <form class="sheet" id="profile" autocomplete="off">
+      <div class="sheet-head">
+        <h2>Your place</h2>
+        <button type="button" class="linkbtn" id="reset">Load sample town</button>
+      </div>
+
+      <div class="field">
+        <label for="p-name">Name</label>
+        <input type="text" id="p-name" placeholder="e.g. Millbrook Falls">
+      </div>
+
+      <div class="row2">
+        <div class="field">
+          <label for="p-pop">Population</label>
+          <input type="number" id="p-pop" min="0" step="100">
+        </div>
+        <div class="field">
+          <label for="p-region">Continent</label>
+          <select id="p-region"></select>
+        </div>
+      </div>
+
+      <div class="field">
+        <span class="label">Distance to a major city</span>
+        <div class="toggle" id="p-remote" role="group" aria-label="Distance to a major city"></div>
+      </div>
+
+      <div class="field">
+        <span class="label">Economy in decline?</span>
+        <div class="toggle" id="p-decline" role="group" aria-label="Economy in decline"></div>
+      </div>
+
+      <div class="field"><span class="label">Setting</span><div class="chips" id="p-settings"></div></div>
+      <div class="field"><span class="label">Economy today</span><div class="chips" id="p-sectors"></div></div>
+      <div class="field"><span class="label">What you have</span><div class="chips" id="p-assets"></div></div>
+      <div class="field"><span class="label">Constraints</span><div class="chips" id="p-constraints"></div></div>
+      <div class="field"><span class="label">What the board wants</span><div class="chips" id="p-ambitions"></div></div>
+    </form>
+
+    <main>
+      <nav class="tabs" id="tabs" aria-label="Results">
+        <a href="#analogs">Analogs</a>
+        <a href="#moves">Moves</a>
+        <a href="#niche">Niche finder</a>
+        <a href="#provocations">Provocations</a>
+        <a href="#briefing">Briefing</a>
+        <a href="#library">Library</a>
+      </nav>
+      <section id="view"></section>
+    </main>
+  </div>
+</div>
+
+<script src="data.js"></script>
+<script>
+(function () {
+"use strict";
+var A = window.ATLAS || { types: [], cases: [] };
+var TYPES = {}; A.types.forEach(function (t) { TYPES[t.code] = t; });
+
+/* ---------- Vocabulary ---------- */
+var LABEL = {
+  anchor_institution: "Anchor institution", branded_ip_theme_park: "Branded IP / theme park", immersive_art_experience: "Immersive art experience",
+  film_tv_location: "Film & TV location", festival_to_identity: "Festival to identity", artist_colonization: "Artist colonization",
+  heritage_rebrand: "Heritage rebrand", food_wine_agritourism: "Food, wine & agritourism", nature_adventure_eco: "Nature & adventure",
+  wellness_retreat: "Wellness & retreats", sports_mega_event: "Sports / mega-event", infrastructure_access: "Access infrastructure",
+  special_district_tax_regime: "Special district / tax regime", visitor_caps_high_value: "Visitor caps, high value",
+  industrial_cluster_innovation_district: "Industry cluster", diaspora_pilgrimage: "Diaspora & pilgrimage", dark_tourism: "Dark tourism",
+  digital_virality: "Digital virality", designation_listing: "Designation / listing", place_branding_campaign: "Branding campaign",
+  waterfront_brownfield_regeneration: "Waterfront / brownfield regeneration", gaming_casino: "Gaming & casinos",
+  amenity_migration_remote_work: "Attract residents & remote workers", housing_str_regulation: "Housing & short-term rental rules",
+  community_ownership_model: "Community ownership", indigenous_led_tourism: "Indigenous-led tourism", cruise_port: "Cruise port"
+};
+var PITCH = {
+  anchor_institution: "put a permanent cultural institution in a building people already notice",
+  branded_ip_theme_park: "build an attraction around a story or character",
+  immersive_art_experience: "let local artists build a walk-through world people return to",
+  film_tv_location: "become the place a story is set and own access to the set",
+  festival_to_identity: "grow one annual event until it becomes what you are known for",
+  artist_colonization: "make it cheap and easy for makers to move in",
+  heritage_rebrand: "turn your real history into the draw",
+  food_wine_agritourism: "make what you grow or cook the reason to come",
+  nature_adventure_eco: "open the landscape to people who want to move through it",
+  wellness_retreat: "position the place around rest and repair",
+  sports_mega_event: "host one big event and plan its afterlife",
+  infrastructure_access: "cut the travel time from the nearest big market",
+  special_district_tax_regime: "create a special legal or tax zone",
+  visitor_caps_high_value: "cap or price access so fewer people spend more",
+  industrial_cluster_innovation_district: "grow a cluster of firms in one field",
+  diaspora_pilgrimage: "invite home the people whose roots are here",
+  dark_tourism: "tell the hard history honestly",
+  digital_virality: "seed one image the internet will share",
+  designation_listing: "earn an outside label (heritage, dark sky, culture capital)",
+  place_branding_campaign: "run a campaign to change how outsiders see you",
+  waterfront_brownfield_regeneration: "reopen derelict industrial or waterfront land",
+  gaming_casino: "legalize gaming",
+  amenity_migration_remote_work: "recruit residents who bring their income with them",
+  housing_str_regulation: "set housing and short-term rental rules before demand arrives",
+  community_ownership_model: "put land and key buildings under resident ownership",
+  indigenous_led_tourism: "let traditional owners set the terms of visits",
+  cruise_port: "open a cruise port"
+};
+var SETTINGS = ["coastal","island","river","lake","mountain","desert","plains","forest","tropical","wine_country","arctic_subarctic","urban_core","inner_suburb","exurban","rural_remote"];
+var SECTORS = ["agriculture","ranching","fishing","forestry","mining_extraction","manufacturing","port_logistics","military","government","education","health","tourism","retail_services","finance","tech","creative_media","religious","retirement_amenity"];
+var ASSETS = {
+  landscape: "Striking landscape", water: "Waterfront", historic_buildings: "Historic buildings", industrial_buildings: "Vacant industrial buildings",
+  craft_food_tradition: "Craft or food tradition", wine_agriculture: "Wine or specialty crops", artists_creatives: "Artists & makers",
+  sacred_site: "Sacred or spiritual site", media_exposure: "Film / media fame", indigenous_heritage: "Indigenous heritage",
+  festival_event: "An existing event", founder_patron: "A founder or patron", university: "College or university",
+  cheap_land: "Cheap land", dark_history: "A hard history", diaspora: "A diaspora abroad"
+};
+var CONSTRAINTS = {
+  housing_shortage: "Housing shortage", seasonality: "Strong seasonality", fiscal_weakness: "Tight public budget",
+  heritage_rules: "Heritage / zoning limits", labor_shortage: "Labor shortage", water_land_limits: "Water or land limits"
+};
+var AMBITIONS = {
+  more_visitors: "More visitors", year_round_jobs: "Year-round jobs", keep_value_local: "Keep the value local",
+  attract_residents: "Attract residents", protect_character: "Protect character", new_identity: "A new identity"
+};
+var REMOTE = { metro: "Under 1.5 h", regional: "1.5–4 h", remote: "Over 4 h" };
+var OUTCOMES = { success: "Success", mixed: "Mixed", cautionary: "Cautionary", failure: "Failure", too_early: "Too early" };
+var OUTCOME_VAL = { success: 1, mixed: 0.25, cautionary: -0.6, failure: -1, too_early: 0 };
+var ARCH = { originator: "Originator", originator_turned_hub: "Originator → hub", host: "Host", host_turned_originator: "Host → originator",
+  hollowed_hub: "Hollowed hub", deliberate_steward: "Deliberate steward", unclassified: "Unclassified" };
+var BANDS = ["tiny", "small", "medium", "large", "national"];
+var BAND_LABEL = { tiny: "under 5k", small: "5k–50k", medium: "50k–500k", large: "500k+", national: "country" };
+
+/* Fit heuristics. Editorial rules of thumb, to be replaced by evidence from researched cases. */
+var ASSET_FIT = {
+  landscape: ["nature_adventure_eco","wellness_retreat","amenity_migration_remote_work","designation_listing"],
+  water: ["nature_adventure_eco","waterfront_brownfield_regeneration","wellness_retreat"],
+  historic_buildings: ["heritage_rebrand","designation_listing","film_tv_location"],
+  industrial_buildings: ["anchor_institution","artist_colonization","immersive_art_experience","waterfront_brownfield_regeneration","festival_to_identity"],
+  craft_food_tradition: ["food_wine_agritourism","festival_to_identity","heritage_rebrand","community_ownership_model"],
+  wine_agriculture: ["food_wine_agritourism","designation_listing"],
+  artists_creatives: ["artist_colonization","immersive_art_experience","festival_to_identity"],
+  sacred_site: ["diaspora_pilgrimage","wellness_retreat"],
+  media_exposure: ["film_tv_location","digital_virality","place_branding_campaign"],
+  indigenous_heritage: ["indigenous_led_tourism","community_ownership_model"],
+  festival_event: ["festival_to_identity"],
+  founder_patron: ["anchor_institution","artist_colonization","immersive_art_experience"],
+  university: ["anchor_institution","industrial_cluster_innovation_district"],
+  cheap_land: ["amenity_migration_remote_work","artist_colonization","community_ownership_model"],
+  dark_history: ["dark_tourism","heritage_rebrand"],
+  diaspora: ["diaspora_pilgrimage","place_branding_campaign"]
+};
+var AMBITION_FIT = {
+  more_visitors: { up: ["festival_to_identity","film_tv_location","place_branding_campaign","designation_listing","nature_adventure_eco","digital_virality"], down: ["visitor_caps_high_value"] },
+  year_round_jobs: { up: ["anchor_institution","industrial_cluster_innovation_district","amenity_migration_remote_work","food_wine_agritourism","immersive_art_experience"], down: ["festival_to_identity","sports_mega_event"] },
+  keep_value_local: { up: ["community_ownership_model","indigenous_led_tourism","food_wine_agritourism","artist_colonization","festival_to_identity"], down: ["branded_ip_theme_park","cruise_port","special_district_tax_regime","gaming_casino"] },
+  attract_residents: { up: ["amenity_migration_remote_work","anchor_institution","artist_colonization"], down: ["cruise_port"] },
+  protect_character: { up: ["visitor_caps_high_value","housing_str_regulation","community_ownership_model","heritage_rebrand"], down: ["cruise_port","digital_virality","sports_mega_event","branded_ip_theme_park","gaming_casino"] },
+  new_identity: { up: ["festival_to_identity","place_branding_campaign","anchor_institution","immersive_art_experience","artist_colonization"], down: [] }
+};
+var CONSTRAINT_FIT = {
+  housing_shortage: { up: ["housing_str_regulation","community_ownership_model"], down: ["artist_colonization","amenity_migration_remote_work","digital_virality","festival_to_identity","wellness_retreat"],
+    note: "Housing is already short. Anything that draws residents or overnight visitors will raise rents first." },
+  seasonality: { up: ["festival_to_identity","wellness_retreat","food_wine_agritourism","anchor_institution"], down: ["nature_adventure_eco"],
+    note: "A strong season means moves that fill the off-season matter more than moves that add to the peak." },
+  fiscal_weakness: { up: ["community_ownership_model","festival_to_identity"], down: ["sports_mega_event","anchor_institution","infrastructure_access","special_district_tax_regime","branded_ip_theme_park"],
+    note: "Big capital projects and incentive packages shift long-term risk onto a thin budget." },
+  heritage_rules: { up: ["heritage_rebrand","designation_listing"], down: ["waterfront_brownfield_regeneration","branded_ip_theme_park"],
+    note: "Heritage limits favor reuse over new building." },
+  labor_shortage: { up: ["amenity_migration_remote_work"], down: ["branded_ip_theme_park","gaming_casino","cruise_port","sports_mega_event"],
+    note: "Labor-hungry attractions will import workers who need housing." },
+  water_land_limits: { up: ["visitor_caps_high_value","heritage_rebrand"], down: ["branded_ip_theme_park","sports_mega_event","gaming_casino","amenity_migration_remote_work"],
+    note: "Physical limits cap growth whatever the plan says." }
+};
+
+var SAMPLE = {
+  name: "Millbrook Falls (sample)", pop: 6500, region: "North America", remote: "regional", decline: "yes",
+  settings: ["river", "forest"], sectors: ["manufacturing", "agriculture"],
+  assets: ["industrial_buildings", "water", "craft_food_tradition", "historic_buildings"],
+  constraints: ["housing_shortage", "seasonality"], ambitions: ["year_round_jobs", "keep_value_local"]
+};
+
+/* ---------- Storage (best effort) ---------- */
+function load(key, fallback) { try { var v = localStorage.getItem(key); return v ? JSON.parse(v) : fallback; } catch (e) { return fallback; } }
+function save(key, val) { try { localStorage.setItem(key, JSON.stringify(val)); } catch (e) { /* storage unavailable */ } }
+
+var P = load("atlas.profile", null) || JSON.parse(JSON.stringify(SAMPLE));
+var NOTES = load("atlas.niche", {});
+
+/* ---------- Helpers ---------- */
+function $(id) { return document.getElementById(id); }
+function esc(s) { return String(s == null ? "" : s).replace(/[&<>"']/g, function (c) { return { "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&#39;" }[c]; }); }
+function nice(code) { return code.replace(/_/g, " "); }
+function cap(s) { return s.charAt(0).toUpperCase() + s.slice(1); }
+function band(n) { if (!n && n !== 0) return null; return n < 5000 ? "tiny" : n < 50000 ? "small" : n < 500000 ? "medium" : "large"; }
+function jaccard(a, b) { if (!a.length || !b.length) return 0; var s = 0; a.forEach(function (x) { if (b.indexOf(x) >= 0) s++; }); return s / (a.length + b.length - s); }
+function overlap(a, b) { return a.filter(function (x) { return b.indexOf(x) >= 0; }); }
+function pill(o) { return '<span class="pill o-' + o + '">' + OUTCOMES[o] + "</span>"; }
+function verifiedTag(c) { return c.verified ? '<span class="tag">researched</span>' : '<span class="tag unv" title="From general knowledge; pending Phase 2 verification">unverified</span>'; }
+
+/* ---------- Scoring ---------- */
+function similarity(c) {
+  var score = 0, max = 0, why = [];
+  var pb = band(P.pop);
+  max += 3;
+  if (pb && c.pop_band) {
+    var d = Math.abs(BANDS.indexOf(pb) - BANDS.indexOf(c.pop_band));
+    if (d === 0) { score += 3; why.push("same size (" + BAND_LABEL[pb] + ")"); } else if (d === 1) score += 1.5;
+  }
+  max += 3; var js = jaccard(P.settings, c.settings); score += 3 * js;
+  var so = overlap(P.settings, c.settings); if (so.length) why.push(so.map(nice).join(", "));
+  max += 2; score += 2 * jaccard(P.sectors, c.sectors);
+  var eo = overlap(P.sectors, c.sectors); if (eo.length) why.push(eo.map(nice).join(", ") + " economy");
+  max += 3; score += 3 * jaccard(P.assets, c.assets);
+  var ao = overlap(P.assets, c.assets); if (ao.length) why.push(ao.map(function (a) { return ASSETS[a].toLowerCase(); }).join(", "));
+  max += 1.5; if (P.remote && c.remoteness === P.remote) { score += 1.5; why.push(REMOTE[P.remote].toLowerCase() + " from a city"); }
+  max += 1; var dec = P.decline === "yes"; if (c.declining === dec) { score += 1; if (dec) why.push("was in decline"); }
+  max += 0.5; if (P.region && c.continent === P.region) score += 0.5;
+  return { pct: Math.round(100 * score / max), why: why };
+}
+
+function analogs() {
+  return A.cases.map(function (c) { var s = similarity(c); return { c: c, pct: s.pct, why: s.why }; })
+    .sort(function (a, b) { return b.pct - a.pct; });
+}
+
+function trackRecord(code) {
+  var r = { success: 0, mixed: 0, cautionary: 0, failure: 0, too_early: 0, n: 0, cases: [] };
+  A.cases.forEach(function (c) { if (c.interventions.indexOf(code) >= 0) { r[c.outcome]++; r.n++; r.cases.push(c); } });
+  return r;
+}
+
+function moves(ranked) {
+  var near = ranked.slice(0, 15);
+  var pb = band(P.pop);
+  var wet = P.settings.some(function (s) { return ["coastal","island","river","lake"].indexOf(s) >= 0; });
+  return A.types.map(function (t) {
+    var code = t.code, score = 0, plus = [], minus = [];
+    P.assets.forEach(function (a) { if ((ASSET_FIT[a] || []).indexOf(code) >= 0) { score += 3; plus.push(ASSETS[a].toLowerCase()); } });
+    P.ambitions.forEach(function (a) {
+      var f = AMBITION_FIT[a]; if (!f) return;
+      if (f.up.indexOf(code) >= 0) { score += 2; plus.push("goal: " + AMBITIONS[a].toLowerCase()); }
+      if (f.down.indexOf(code) >= 0) { score -= 2; minus.push("works against: " + AMBITIONS[a].toLowerCase()); }
+    });
+    P.constraints.forEach(function (k) {
+      var f = CONSTRAINT_FIT[k]; if (!f) return;
+      if (f.up.indexOf(code) >= 0) { score += 1.5; plus.push("eases " + CONSTRAINTS[k].toLowerCase()); }
+      if (f.down.indexOf(code) >= 0) { score -= 2; minus.push(CONSTRAINTS[k].toLowerCase()); }
+    });
+    if ((pb === "tiny" || pb === "small") && ["sports_mega_event","gaming_casino","industrial_cluster_innovation_district","special_district_tax_regime"].indexOf(code) >= 0) { score -= 3; minus.push("needs a bigger place"); }
+    if ((code === "cruise_port" || code === "waterfront_brownfield_regeneration") && !wet) { score -= 4; minus.push("no waterfront"); }
+    if (code === "food_wine_agritourism" && P.settings.indexOf("wine_country") >= 0) { score += 2; plus.push("wine country"); }
+    var ev = 0, used = [];
+    near.forEach(function (x) {
+      if (x.c.interventions.indexOf(code) >= 0) { ev += (x.pct / 100) * OUTCOME_VAL[x.c.outcome]; used.push(x.c); }
+    });
+    score += 2 * ev;
+    return { t: t, code: code, score: score, plus: plus, minus: minus, ev: ev, used: used, rec: trackRecord(code) };
+  }).sort(function (a, b) { return b.score - a.score; });
+}
+
+function provocations(mv) {
+  var top = mv.slice(0, 10), pairs = [];
+  for (var i = 0; i < top.length; i++) for (var j = i + 1; j < top.length; j++) {
+    var a = top[i], b = top[j];
+    if (a.t.family === b.t.family) continue;
+    var both = A.cases.filter(function (c) { return c.interventions.indexOf(a.code) >= 0 && c.interventions.indexOf(b.code) >= 0; });
+    var s = a.score + b.score + (both.length === 0 ? 2.5 : both.length === 1 ? 1 : 0);
+    if (a.t.family === "E" || b.t.family === "E") s += 1.5;
+    pairs.push({ a: a, b: b, both: both, s: s });
+  }
+  pairs.sort(function (x, y) { return y.s - x.s; });
+  var out = [], seen = {};
+  pairs.forEach(function (p) {
+    if (out.length >= 5) return;
+    if ((seen[p.a.code] || 0) >= 2 || (seen[p.b.code] || 0) >= 2) return;
+    seen[p.a.code] = (seen[p.a.code] || 0) + 1; seen[p.b.code] = (seen[p.b.code] || 0) + 1;
+    out.push(p);
+  });
+  return out;
+}
+
+function stressQuestions(p) {
+  var q = [], fams = [p.a.t.family, p.b.t.family], codes = [p.a.code, p.b.code];
+  var attract = fams.filter(function (f) { return f === "A" || f === "D"; }).length;
+  if (attract && P.constraints.indexOf("housing_shortage") >= 0) q.push("Where will the new workers and visitors sleep, and who loses housing when they do?");
+  if (fams.indexOf("E") < 0 && attract) q.push("What limit will you set now, before success makes it politically impossible?");
+  if (codes.some(function (c) { return ["branded_ip_theme_park","film_tv_location","immersive_art_experience","festival_to_identity"].indexOf(c) >= 0; }))
+    q.push("Who will own the name, the IP or the event, and what stops it being sold or moved?");
+  if (codes.indexOf("anchor_institution") >= 0 || codes.indexOf("sports_mega_event") >= 0) q.push("Who pays the running costs in year ten if attendance falls?");
+  if (codes.indexOf("artist_colonization") >= 0 || codes.indexOf("amenity_migration_remote_work") >= 0) q.push("How will the first wave of newcomers stay once rents rise?");
+  q.push("Which local business gets stronger if this works, and how would you know in three years?");
+  return q.slice(0, 4);
+}
+
+/* ---------- Niche finder questions ---------- */
+var DIMENSIONS = [
+  { key: "origin", name: "Origin", hint: "Was it born here, or could it be anywhere?", qs: [
+    "What exists here that would be hard to find within a day's drive?",
+    "What do people here make, grow or do that visitors don't know about yet?",
+    "Which of your assets would still be here if no visitor ever came?" ] },
+  { key: "authorship", name: "Authorship", hint: "Who tells the story and owns the brand?", qs: [
+    "Who tells the town's story today: residents, the tourism office, a company or the media?",
+    "If a film or an influencer made you famous tomorrow, whose version of the town would they show?" ] },
+  { key: "value", name: "Value capture", hint: "What share stays local?", qs: [
+    "Who owns the buildings and land on your main street, and how many of them live here?",
+    "If a visitor spent $100 here tomorrow, how much of it would still be in town a month later?" ] },
+  { key: "compounding", name: "Compounding", hint: "Does one success seed the next?", qs: [
+    "What could a new attraction teach local people to do that they could then sell elsewhere?",
+    "Which local business could supply the next one?" ] },
+  { key: "dependency", name: "Dependency", hint: "How exposed are you to one anchor?", qs: [
+    "If your biggest employer or event left, what would remain?" ] },
+  { key: "durability", name: "Identity durability", hint: "Distinctive without the anchor?", qs: [
+    "Describe the town in one sentence without naming any attraction." ] }
+];
+var ASSET_QS = {
+  industrial_buildings: "Who owns the vacant industrial buildings, and could a community trust buy one before the market notices?",
+  craft_food_tradition: "Could the craft or food tradition be protected with a place name or a collective mark?",
+  artists_creatives: "What would keep artists here once rents rise: owned studios, land trusts, a guild?",
+  media_exposure: "Who controls access to the spots people want to photograph?",
+  indigenous_heritage: "Have the traditional owners been asked whether, and on what terms, they want visitors?",
+  sacred_site: "Who decides what is open to visitors and what isn't?",
+  landscape: "Who owns the access points: trailheads, beaches, viewpoints?",
+  festival_event: "Who owns the event's name, and could it be sold or moved away?",
+  founder_patron: "What happens when the founder or patron retires, dies or leaves?",
+  historic_buildings: "Is the history being told the one residents recognize?",
+  wine_agriculture: "Who will own the farmland in twenty years if land prices double?",
+  cheap_land: "Who is buying land right now, and what will they do with it?",
+  diaspora: "What would bring the diaspora back for more than one visit?",
+  dark_history: "Have descendants or survivors been asked how the story should be told?",
+  university: "What do graduates leave town to do that they could do here?",
+  water: "Is the waterfront public, and will it stay that way?"
+};
+
+/* ---------- Rendering: profile form ---------- */
+function chipGroup(el, options, key, labels) {
+  el.innerHTML = options.map(function (o) {
+    var on = P[key].indexOf(o) >= 0;
+    return '<button type="button" class="chip" data-key="' + key + '" data-val="' + o + '" aria-pressed="' + on + '">' + esc(labels ? labels[o] : nice(o)) + "</button>";
+  }).join("");
+}
+function toggleGroup(el, options, key) {
+  el.innerHTML = Object.keys(options).map(function (o) {
+    return '<button type="button" data-key="' + key + '" data-val="' + o + '" aria-pressed="' + (P[key] === o) + '">' + esc(options[o]) + "</button>";
+  }).join("");
+}
+function renderForm() {
+  $("p-name").value = P.name || "";
+  $("p-pop").value = P.pop || "";
+  var regions = ["Africa", "Asia", "Europe", "North America", "Oceania", "South America"];
+  $("p-region").innerHTML = '<option value="">Any</option>' + regions.map(function (r) { return "<option" + (P.region === r ? " selected" : "") + ">" + r + "</option>"; }).join("");
+  toggleGroup($("p-remote"), REMOTE, "remote");
+  toggleGroup($("p-decline"), { yes: "Yes", no: "No" }, "decline");
+  chipGroup($("p-settings"), SETTINGS, "settings");
+  chipGroup($("p-sectors"), SECTORS, "sectors");
+  chipGroup($("p-assets"), Object.keys(ASSETS), "assets", ASSETS);
+  chipGroup($("p-constraints"), Object.keys(CONSTRAINTS), "constraints", CONSTRAINTS);
+  chipGroup($("p-ambitions"), Object.keys(AMBITIONS), "ambitions", AMBITIONS);
+}
+
+$("profile").addEventListener("click", function (e) {
+  var b = e.target.closest("button[data-key]"); if (!b) return;
+  var k = b.dataset.key, v = b.dataset.val;
+  if (Array.isArray(P[k])) {
+    var i = P[k].indexOf(v); if (i >= 0) P[k].splice(i, 1); else P[k].push(v);
+    b.setAttribute("aria-pressed", String(i < 0));
+  } else {
+    P[k] = v;
+    Array.prototype.forEach.call(b.parentNode.children, function (s) { s.setAttribute("aria-pressed", String(s === b)); });
+  }
+  changed();
+});
+$("p-name").addEventListener("input", function (e) { P.name = e.target.value; changed(); });
+$("p-pop").addEventListener("input", function (e) { P.pop = e.target.value === "" ? null : Number(e.target.value); changed(); });
+$("p-region").addEventListener("change", function (e) { P.region = e.target.value; changed(); });
+$("profile").addEventListener("submit", function (e) { e.preventDefault(); });
+$("reset").addEventListener("click", function () { P = JSON.parse(JSON.stringify(SAMPLE)); renderForm(); changed(); });
+
+var timer = null;
+function changed() { save("atlas.profile", P); clearTimeout(timer); timer = setTimeout(renderView, 60); }
+
+/* ---------- Rendering: views ---------- */
+function viewAnalogs() {
+  var list = analogs().slice(0, 10);
+  return '<p class="panel-intro">The ten cases whose starting conditions look most like yours. Similarity weighs size, setting, economy, assets, distance to a city and whether the place was in decline. Read the failures as closely as the successes.</p><div class="stack">' +
+    list.map(function (x) { return caseCard(x.c, x); }).join("") + "</div>";
+}
+function caseCard(c, x) {
+  return '<article class="case">' +
+    '<div class="case-top"><span class="case-name">' + esc(c.name) + "</span>" + pill(c.outcome) + "</div>" +
+    '<div class="meta"><span>' + esc(c.country) + "</span><span class=\"mono\">from " + esc(c.start) + "</span><span>" + esc(ARCH[c.archetype] || "") + "</span>" + verifiedTag(c) + "</div>" +
+    (x ? '<div class="sim"><span class="mono">' + x.pct + '% similar</span><div class="bar"><span style="width:' + x.pct + '%"></span></div></div>' +
+      (x.why.length ? '<p class="why">Shared: ' + esc(x.why.join(" · ")) + "</p>" : "") : "") +
+    "<p>" + esc(c.summary) + "</p>" +
+    '<div class="tags">' + c.interventions.map(function (i) { return '<span class="tag">' + esc(LABEL[i] || i) + "</span>"; }).join("") + "</div>" +
+    (c.effects && c.effects.length ? '<p class="why">Side effects: ' + esc(c.effects.map(nice).join(", ")) + "</p>" : "") +
+    (c.lesson ? '<p class="lesson">' + esc(c.lesson) + "</p>" : "") +
+    "</article>";
+}
+
+function recordBar(r) {
+  if (!r.n) return '<span class="why">No cases in the library yet.</span>';
+  var seg = [["success","s"],["mixed","m"],["cautionary","c"],["failure","f"],["too_early","t"]].map(function (p) {
+    return r[p[0]] ? '<span class="' + p[1] + '" style="width:' + (100 * r[p[0]] / r.n) + '%" title="' + OUTCOMES[p[0]] + ": " + r[p[0]] + '"></span>' : "";
+  }).join("");
+  var txt = ["success","mixed","cautionary","failure","too_early"].filter(function (k) { return r[k]; }).map(function (k) { return r[k] + " " + OUTCOMES[k].toLowerCase(); }).join(", ");
+  return '<div class="record" role="img" aria-label="' + esc(txt) + '">' + seg + '</div><span class="why">' + r.n + " cases: " + esc(txt) + "</span>";
+}
+function viewMoves() {
+  var mv = moves(analogs()).slice(0, 10);
+  var housingNote = P.constraints.map(function (k) { return CONSTRAINT_FIT[k] && CONSTRAINT_FIT[k].note; }).filter(Boolean);
+  return '<p class="panel-intro">Intervention types ranked by fit with your assets, goals and constraints, then adjusted by how they turned out in your closest analogs. The fit rules are rough editorial heuristics until the researched cases replace them.</p>' +
+    (housingNote.length ? '<div class="notice"><span><strong>Your constraints.</strong> ' + esc(housingNote.join(" ")) + "</span></div>" : "") +
+    '<div class="stack">' + mv.map(function (m, i) {
+      return '<article class="move"><div class="rank">' + (i + 1) + '</div><div class="move-body">' +
+        '<div><div class="family">' + esc(m.t.family_name) + '</div><h3>' + esc(LABEL[m.code]) + '</h3></div>' +
+        "<p>" + esc(m.t.definition || "") + "</p>" +
+        (m.plus.length ? '<p class="why"><b>Fits:</b> ' + esc(m.plus.join(" · ")) + "</p>" : "") +
+        (m.minus.length ? '<p class="why"><b>Against:</b> ' + esc(m.minus.join(" · ")) + "</p>" : "") +
+        "<div>" + recordBar(m.rec) + "</div>" +
+        (m.used.length ? '<p class="why">Used by your analogs: ' + esc(m.used.map(function (c) { return c.name + " (" + OUTCOMES[c.outcome].toLowerCase() + ")"; }).join(", ")) + "</p>" : "") +
+        (m.t.risks ? '<p class="risk"><b>Watch for:</b> ' + esc(m.t.risks) + "</p>" : "") +
+        "<details><summary>How it works</summary><div class=\"def\">" +
+          (m.t.mechanism ? "<p><b>Mechanism.</b> " + esc(m.t.mechanism) + "</p>" : "") +
+          (m.t.niche_hub ? "<p><b>Niche or hub.</b> " + esc(m.t.niche_hub) + "</p>" : "") +
+          (m.t.illustrative ? "<p><b>Examples (unverified).</b> " + esc(m.t.illustrative) + "</p>" : "") +
+        "</div></details>" +
+        "</div></article>";
+    }).join("") + "</div>";
+}
+
+function nicheQuestions() {
+  var dims = DIMENSIONS.map(function (d) { return { d: d, qs: d.qs.slice() }; });
+  P.assets.forEach(function (a) { if (ASSET_QS[a]) dims[a === "festival_event" || a === "founder_patron" ? 4 : a === "industrial_buildings" || a === "cheap_land" || a === "wine_agriculture" || a === "water" ? 2 : a === "media_exposure" || a === "indigenous_heritage" || a === "sacred_site" || a === "dark_history" || a === "historic_buildings" ? 1 : 0].qs.push(ASSET_QS[a]); });
+  return dims;
+}
+function viewNiche() {
+  var dims = nicheQuestions(), qi = 0;
+  return '<p class="panel-intro">Questions for a board meeting, grouped by the six things that separate places that originate something from places that host someone else\'s. Answers stay in this browser and go into the briefing.</p><div class="stack">' +
+    dims.map(function (x) {
+      return '<section class="dim"><div class="dim-head"><h3>' + esc(x.d.name) + '</h3><span class="why">' + esc(x.d.hint) + "</span></div>" +
+        x.qs.map(function (q) {
+          var id = "nq-" + (qi++);
+          return '<div class="q"><label for="' + id + '">' + esc(q) + '</label><textarea id="' + id + '" data-q="' + esc(q) + '" placeholder="Notes">' + esc(NOTES[q] || "") + "</textarea></div>";
+        }).join("") + "</section>";
+    }).join("") + "</div>";
+}
+
+function viewProvocations() {
+  var pv = provocations(moves(analogs()));
+  if (!pv.length) return '<p class="panel-intro">Add a few assets and goals to generate provocations.</p>';
+  return '<p class="panel-intro">Unusual pairings of moves that both fit your profile, chosen from different families and favoring combinations few places have tried. Each comes with the ways its parts have failed elsewhere.</p><div class="stack">' +
+    pv.map(function (p) {
+      var bad = p.a.rec.cases.concat(p.b.rec.cases).filter(function (c, i, arr) { return (c.outcome === "failure" || c.outcome === "cautionary") && arr.indexOf(c) === i; });
+      return '<article class="prov"><div class="combo"><span class="tag">' + esc(LABEL[p.a.code]) + '</span><span class="plus">+</span><span class="tag">' + esc(LABEL[p.b.code]) + "</span></div>" +
+        "<h3>" + esc(cap(PITCH[p.a.code]) + ", and " + PITCH[p.b.code] + ".") + "</h3>" +
+        '<p class="why">' + (p.both.length ? "Tried together by: " + esc(p.both.map(function (c) { return c.name + " (" + OUTCOMES[c.outcome].toLowerCase() + ")"; }).join(", ")) : "No case in the library combines these two. That is either an opening or a warning.") + "</p>" +
+        '<div class="test"><b>Stress test</b><ul>' +
+          (p.a.t.risks ? "<li>" + esc(LABEL[p.a.code]) + ": " + esc(p.a.t.risks) + "</li>" : "") +
+          (p.b.t.risks ? "<li>" + esc(LABEL[p.b.code]) + ": " + esc(p.b.t.risks) + "</li>" : "") +
+          (bad.length ? "<li>Went badly in: " + esc(bad.slice(0, 5).map(function (c) { return c.name; }).join(", ")) + "</li>" : "") +
+        "</ul><b>Answer before acting</b><ul>" + stressQuestions(p).map(function (q) { return "<li>" + esc(q) + "</li>"; }).join("") + "</ul></div></article>";
+    }).join("") + "</div>";
+}
+
+function briefingMarkdown() {
+  var an = analogs().slice(0, 5), mv = moves(analogs()), pv = provocations(mv);
+  var L = [];
+  L.push("# Board briefing: " + (P.name || "Our town"));
+  L.push("");
+  L.push("Prepared with the Place Transformation Atlas prototype on " + new Date().toISOString().slice(0, 10) + ".");
+  L.push("");
+  L.push("## Profile");
+  L.push("- Population: " + (P.pop ? Number(P.pop).toLocaleString() : "not given") + (P.region ? " · " + P.region : ""));
+  L.push("- Distance to a major city: " + (REMOTE[P.remote] || "not given") + " · in decline: " + (P.decline === "yes" ? "yes" : "no"));
+  if (P.settings.length) L.push("- Setting: " + P.settings.map(nice).join(", "));
+  if (P.sectors.length) L.push("- Economy: " + P.sectors.map(nice).join(", "));
+  if (P.assets.length) L.push("- Assets: " + P.assets.map(function (a) { return ASSETS[a]; }).join(", "));
+  if (P.constraints.length) L.push("- Constraints: " + P.constraints.map(function (a) { return CONSTRAINTS[a]; }).join(", "));
+  if (P.ambitions.length) L.push("- Goals: " + P.ambitions.map(function (a) { return AMBITIONS[a]; }).join(", "));
+  L.push("");
+  L.push("## Closest analogs");
+  an.forEach(function (x) {
+    L.push("- **" + x.c.name + "** (" + x.c.country + ", from " + x.c.start + ") · " + OUTCOMES[x.c.outcome] + " · " + x.pct + "% similar. " + x.c.summary + (x.c.lesson ? " *Lesson:* " + x.c.lesson : ""));
+  });
+  L.push("");
+  L.push("## Moves that fit");
+  mv.slice(0, 5).forEach(function (m) {
+    L.push("- **" + LABEL[m.code] + "**. " + (m.t.definition || "") + (m.t.risks ? " *Watch for:* " + m.t.risks : ""));
+  });
+  L.push("");
+  L.push("## Provocations");
+  pv.slice(0, 3).forEach(function (p) {
+    L.push("- **" + cap(PITCH[p.a.code]) + ", and " + PITCH[p.b.code] + ".** " + stressQuestions(p).join(" "));
+  });
+  var answered = Object.keys(NOTES).filter(function (q) { return NOTES[q] && NOTES[q].trim(); });
+  if (answered.length) {
+    L.push("");
+    L.push("## What is ours (board notes)");
+    answered.forEach(function (q) { L.push("- **" + q + "** " + NOTES[q].trim().replace(/\n+/g, " ")); });
+  }
+  L.push("");
+  L.push("## Caveats");
+  L.push("- Analog cases are preview stubs written from general knowledge and not yet verified against sources.");
+  L.push("- Outcomes describe what happened, not what caused it. No causal comparisons have been run yet.");
+  L.push("- Fit rankings use editorial rules of thumb.");
+  return L.join("\n");
+}
+function mdToHtml(md) {
+  var html = [], inList = false;
+  md.split("\n").forEach(function (line) {
+    var t = esc(line).replace(/\*\*(.+?)\*\*/g, "<strong>$1</strong>").replace(/\*(.+?)\*/g, "<em>$1</em>");
+    if (/^- /.test(line)) { if (!inList) { html.push("<ul>"); inList = true; } html.push("<li>" + t.slice(2) + "</li>"); return; }
+    if (inList) { html.push("</ul>"); inList = false; }
+    if (/^# /.test(line)) html.push("<h1>" + t.slice(2) + "</h1>");
+    else if (/^## /.test(line)) html.push("<h2>" + t.slice(3) + "</h2>");
+    else if (line.trim()) html.push('<p class="muted">' + t + "</p>");
+  });
+  if (inList) html.push("</ul>");
+  return html.join("");
+}
+function viewBriefing() {
+  return '<p class="panel-intro">A one-page briefing built from your profile, analogs, moves and niche notes. Copy it as Markdown into a doc or email.</p>' +
+    '<div class="brief-actions"><button type="button" class="btn" id="copy-md">Copy as Markdown</button><span class="why" id="copy-status" aria-live="polite"></span></div>' +
+    '<div id="copy-fallback-wrap" hidden><textarea class="copy-fallback" id="copy-fallback" readonly></textarea></div>' +
+    '<article class="doc">' + mdToHtml(briefingMarkdown()) + "</article>";
+}
+
+var LIB = { outcome: "", type: "" };
+function viewLibrary() {
+  var counts = { success: 0, mixed: 0, cautionary: 0, failure: 0, too_early: 0 };
+  A.cases.forEach(function (c) { counts[c.outcome]++; });
+  var n = A.cases.length, neg = counts.cautionary + counts.failure;
+  var cols = { success: "var(--o-success)", mixed: "var(--o-mixed)", cautionary: "var(--o-cautionary)", failure: "var(--o-failure)", too_early: "var(--o-too_early)" };
+  var list = A.cases.filter(function (c) { return (!LIB.outcome || c.outcome === LIB.outcome) && (!LIB.type || c.interventions.indexOf(LIB.type) >= 0); })
+    .sort(function (a, b) { return a.name.localeCompare(b.name); });
+  var researched = A.cases.filter(function (c) { return c.verified; }).length;
+  return '<p class="panel-intro">Every case in the atlas. The project aims for about one failure or cautionary case for every two successes, to counter survivorship bias.</p>' +
+    '<div class="lib-stats"><div class="ratio" role="img" aria-label="Outcome mix">' + Object.keys(counts).map(function (k) { return counts[k] ? '<span style="width:' + (100 * counts[k] / n) + "%;background:" + cols[k] + '" title="' + OUTCOMES[k] + ": " + counts[k] + '"></span>' : ""; }).join("") + "</div>" +
+    '<span class="mono">' + n + " cases · " + counts.success + " success · " + neg + " cautionary or failure · " + researched + " researched</span></div>" +
+    '<div class="lib-filters"><select id="lib-outcome" aria-label="Filter by outcome"><option value="">All outcomes</option>' +
+      Object.keys(OUTCOMES).map(function (k) { return '<option value="' + k + '"' + (LIB.outcome === k ? " selected" : "") + ">" + OUTCOMES[k] + "</option>"; }).join("") + "</select>" +
+    '<select id="lib-type" aria-label="Filter by move"><option value="">All moves</option>' +
+      A.types.map(function (t) { return '<option value="' + t.code + '"' + (LIB.type === t.code ? " selected" : "") + ">" + esc(LABEL[t.code] || t.code) + "</option>"; }).join("") + "</select></div>" +
+    '<div class="stack">' + (list.length ? list.map(function (c) { return caseCard(c); }).join("") : '<p class="why">No cases match these filters.</p>') + "</div>";
+}
+
+var VIEWS = { analogs: viewAnalogs, moves: viewMoves, niche: viewNiche, provocations: viewProvocations, briefing: viewBriefing, library: viewLibrary };
+function current() { var h = (location.hash || "").slice(1); return VIEWS[h] ? h : "analogs"; }
+function renderView() {
+  var v = current();
+  Array.prototype.forEach.call($("tabs").querySelectorAll("a"), function (a) {
+    if (a.getAttribute("href") === "#" + v) a.setAttribute("aria-current", "page"); else a.removeAttribute("aria-current");
+  });
+  if (v === "niche" && $("view").querySelector("textarea[data-q]") && document.activeElement && document.activeElement.matches("textarea[data-q]")) return;
+  $("view").innerHTML = VIEWS[v]();
+}
+window.addEventListener("hashchange", renderView);
+
+$("view").addEventListener("input", function (e) {
+  if (e.target.matches("textarea[data-q]")) { NOTES[e.target.dataset.q] = e.target.value; save("atlas.niche", NOTES); }
+});
+$("view").addEventListener("change", function (e) {
+  if (e.target.id === "lib-outcome") { LIB.outcome = e.target.value; renderView(); }
+  if (e.target.id === "lib-type") { LIB.type = e.target.value; renderView(); }
+});
+$("view").addEventListener("click", function (e) {
+  if (e.target.id !== "copy-md") return;
+  var md = briefingMarkdown(), status = $("copy-status");
+  function fallback() {
+    $("copy-fallback-wrap").hidden = false; var ta = $("copy-fallback"); ta.value = md; ta.focus(); ta.select();
+    status.textContent = "Copying was blocked. The text is selected below; press Ctrl+C or Cmd+C.";
+  }
+  try {
+    navigator.clipboard.writeText(md).then(function () { status.textContent = "Copied to clipboard."; }, fallback);
+  } catch (err) { fallback(); }
+});
+
+/* ---------- Boot ---------- */
+var nResearched = A.cases.filter(function (c) { return c.verified; }).length;
+$("stamp").innerHTML = "schema v0.1.0<br>" + A.types.length + " intervention types<br>" + A.cases.length + " cases · " + nResearched + " researched";
+$("notice").innerHTML = nResearched === A.cases.length
+  ? "<span><strong>Researched data.</strong> All cases are sourced case cards.</span>"
+  : "<span><strong>Prototype.</strong> " + (A.cases.length - nResearched) + " of " + A.cases.length + " cases are unverified preview stubs written from general knowledge. They show how the tool works and will be replaced by sourced case cards in Phase 3. Don't cite them.</span>";
+renderForm();
+renderView();
+})();
+</script>
