@@ -1,0 +1,33 @@
+{
+  "name": "huddle-web",
+  "version": "0.1.0",
+  "private": true,
+  "scripts": {
+    "dev": "next dev",
+    "build": "next build",
+    "start": "next start",
+    "typecheck": "tsc --noEmit",
+    "test": "vitest run",
+    "test:watch": "vitest",
+    "e2e": "node scripts/e2e.mjs",
+    "seed:reset": "rm -rf .data",
+    "test:sql": "node scripts/check-migrations.mjs supabase/migrations"
+  },
+  "dependencies": {
+    "next": "15.5.28",
+    "react": "19.1.10",
+    "react-dom": "19.1.10",
+    "server-only": "^0.0.1",
+    "zod": "3.25.76"
+  },
+  "devDependencies": {
+    "@electric-sql/pglite": "^0.3.7",
+    "@tailwindcss/postcss": "4.1.18",
+    "@types/node": "22.20.5",
+    "@types/react": "19.1.17",
+    "@types/react-dom": "19.1.11",
+    "tailwindcss": "4.1.18",
+    "typescript": "5.9.3",
+    "vitest": "3.2.7"
+  }
+}
